@@ -13,7 +13,7 @@ module.exports = function (vars, pool) {
     return function (req, res) {
         /// 1
         console.log("addEvent");
-        // console.log(req.body);
+        console.log(req.body);
 
         if (!req.body.type) {
             res.status(400).json({
@@ -67,7 +67,7 @@ module.exports = function (vars, pool) {
 
         if (cfIp.length <= 16) {
             if (!ipv4) {
-                ipv4 = ip;
+                ipv4 = cfIp;
             } else if (ipv4 !== cfIp) {
                 console.warn("ipv4 mismatch");
                 res.status(403).json({

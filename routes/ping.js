@@ -1,7 +1,7 @@
 module.exports = function (vars, pool) {
     return function (req, res) {
-        console.log(JSON.stringify(req.headers));
-        console.log(JSON.stringify(req.body));
+        // console.log(JSON.stringify(req.headers));
+        // console.log(JSON.stringify(req.body));
 
         let cfIp = req.header("Cf-Connecting-Ip");
         if (!cfIp) {
@@ -11,10 +11,10 @@ module.exports = function (vars, pool) {
             });
             return;
         }
-        console.log(cfIp);
+        // console.log(cfIp);
 
         let userAgent = req.header("User-Agent");
-        console.log(userAgent);
+        // console.log(userAgent);
 
 
         let lastFocused = parseInt(req.body.lastFocused || "0") || 0;
@@ -24,7 +24,7 @@ module.exports = function (vars, pool) {
         let activeDate = lastFocused > 0 ? new Date(lastFocused) : date;
 
         let isMod = (typeof req.body.minecraftUser !== "undefined") && userAgent.startsWith("BossTimerMod/") && req.body.isModRequest === "true";
-        console.log("isMod: " + isMod);
+        // console.log("isMod: " + isMod);
 
         pool.query(
             "INSERT INTO hypixel_skyblock_magma_timer_pings (ip,time,active_time,minecraftName,isMod) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE time=?, active_time=?, minecraftName=?, isMod=?",

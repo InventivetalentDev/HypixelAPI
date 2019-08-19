@@ -42,7 +42,7 @@ module.exports = function (vars, pool) {
                     let averageTime = (result.time_average.getTime() + result.time_latest.getTime()) / 2;
                     let confirmations = result.confirmations;
 
-                    if (eventTimes[type] <= 0 || (confirmations > eventConfirmations[type] && (eventTimes[type] - averageTime < 240))) {
+                    if (eventTimes[type] <= 0 || (confirmations > eventConfirmations[type] && (eventTimes[type] - averageTime < 300))) {
                         eventTimes[type] = averageTime;
                     }
 
@@ -103,14 +103,14 @@ module.exports = function (vars, pool) {
                     estimateSource = "blaze";
                 }
                 if (lastMagma > lastSpawn && lastMagma > lastDeath && lastMagma > lastBlaze && now - lastMagma < tenMinsInMillis) {
-                    let estimate = lastMagma + twentyMinsInMillis;
+                    let estimate = lastMagma + tenMinsInMillis;
                     averageEstimate += estimate * eventConfirmations["magma"];
                     averageEstimateCounter += eventConfirmations["magma"];
 
                     estimateSource = "magma";
                 }
                 if (lastMusic > lastSpawn && lastMusic > lastDeath && lastMusic > lastBlaze && lastMusic > lastMagma && now - lastMusic < twoMinsInMillis) {
-                    let estimate = lastMusic + twentyMinsInMillis;
+                    let estimate = lastMusic + twoMinsInMillis;
                     averageEstimate += estimate * eventConfirmations["music"];
                     averageEstimateCounter += eventConfirmations["music"];
 
