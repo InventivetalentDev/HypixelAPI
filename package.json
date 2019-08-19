@@ -1,0 +1,22 @@
+{
+  "name": "hypixelbosstimernode",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-rate-limit": "^5.0.0",
+    "moment": "^2.24.0",
+    "mysql": "^2.17.1",
+    "querystring": "^0.2.0",
+    "recaptcha-verify": "^0.1.1",
+    "request": "^2.88.0",
+    "tunnel-ssh": "^4.1.4"
+  }
+}
