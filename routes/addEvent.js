@@ -13,7 +13,7 @@ module.exports = function (vars, pool) {
     return function (req, res) {
         /// 1
         console.log("addEvent");
-        console.log(req.body);
+        // console.log(req.body);
 
         if (!req.body.type) {
             res.status(400).json({
@@ -35,7 +35,7 @@ module.exports = function (vars, pool) {
         let username = req.body.username || "";
         let server = req.body.serverId || "";
 
-        console.log(JSON.stringify(req.headers));
+        // console.log(JSON.stringify(req.headers));
 
         let cfIp = req.header("Cf-Connecting-Ip");
         if (!cfIp) {
