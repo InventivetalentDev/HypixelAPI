@@ -19,10 +19,10 @@ app.use(cors({
 
 const limiter = rateLimit({
     windowMs: 2 * 60 * 1000, // 2 minutes
-    max: 10 // limit each IP to 10 requests per windowMs
+    max: 100 // limit each IP to 10 requests per windowMs
 });
 //  apply to all requests
-app.use(limiter);
+// app.use(limiter);
 
 // app.use(express.static('public'));
 

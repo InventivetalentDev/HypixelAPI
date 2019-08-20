@@ -7,7 +7,7 @@ const confirmationCheckFactor = 140 * 1000;
 module.exports = function (vars, pool) {
     const recaptcha = new Recaptcha({
         secret: vars.captcha.key,
-        verbose: true
+        verbose: false
     });
 
     return function (req, res) {
@@ -142,7 +142,7 @@ module.exports = function (vars, pool) {
                             return;
                         }
 
-                        let throttle = type === "death" && lastType === "spawn" ? 10000/*10sec*/ : type === "spawn" && lastType === "music" ? 40000/*40sec*/ : 120000;
+                        let throttle = type === "death" && lastType === "spawn" ? 10000/*10sec*/ : type === "spawn" && lastType === "music" ? 40000/*40sec*/ : 120000/*2min*/;
                         if (time - lastTime < throttle) {
                             res.status(429).json({
                                 success: false,
