@@ -43,7 +43,7 @@ module.exports = function (vars, pool) {
                     let averageTime = (result.time_average.getTime() + result.time_latest.getTime()) / 2;
                     let confirmations = result.confirmations;
 
-                    if (eventTimes[type] <= 0 || (confirmations > eventConfirmations[type] && (eventTimes[type] - averageTime < 300))) {
+                    if (eventTimes[type] <= 0 || (confirmations > eventConfirmations[type] && (Math.abs(eventTimes[type] - averageTime) < 120000))) {
                         eventTimes[type] = averageTime;
                     }
 

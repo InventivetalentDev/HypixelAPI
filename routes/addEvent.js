@@ -7,7 +7,7 @@ const confirmationCheckFactor = 140 * 1000;
 module.exports = function (vars, pool) {
     const recaptcha = new Recaptcha({
         secret: vars.captcha.key,
-        verbose: false
+        verbose: true
     });
 
     return function (req, res) {
@@ -94,9 +94,9 @@ module.exports = function (vars, pool) {
 
 
         function continueRequest(captchaRes) {
-
+            console.log(captchaRes);
             /// 2
-            let captchaScore = captchaRes ? captchaRes.score : 0 || 0;
+            let captchaScore = (captchaRes ? captchaRes.score : 0) || 0;// NOTE: v2 doesn't have this, only v3
 
             let date = new Date();
             let time = date.getTime();
@@ -196,7 +196,7 @@ module.exports = function (vars, pool) {
                                     return;
                                 }
 
-                                let hash = crypto.createHash("md5").update(type + roundedTime).digest("hex");
+                                let hash = crypto.createHash("md5").update(type + roundedDate.toUTCString()).digest("hex");
 
                                 connection.query(
                                     "INSERT INTO hypixel_skyblock_magma_timer_events2 (hash,type,time_rounded,time_average,confirmations,time_latest) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE confirmations=confirmations+?, time_latest=?",
@@ -265,8 +265,10 @@ module.exports = function (vars, pool) {
                     return;
                 }
                 if (captchaRes.success) {
+                    console.log("recaptcha good!");
                     continueRequest(captchaRes);
                 } else {
+                    console.log("recaptcha bad :(");
                     res.status(403).json({
                         success: false,
                         msg: "Failed to verify captcha"
