@@ -90,7 +90,7 @@ module.exports = function (vars, pool) {
         }
 
         let isMod = (typeof req.body.minecraftUser !== "undefined") && userAgent.startsWith("BossTimerMod/") && req.body.isModRequest === "true";
-        console.log("isMod: "+isMod);
+        console.log("isMod: " + isMod);
 
 
         function continueRequest(captchaRes) {
@@ -102,11 +102,11 @@ module.exports = function (vars, pool) {
             let time = date.getTime();
 
 
-            pool.getConnection(function (err,connection) {
+            pool.getConnection(function (err, connection) {
                 if (err) {
                     console.warn(err);
                     res.status(500).json({
-                        success:false,
+                        success: false,
                         msg: "Failed to get connection from pool"
                     });
                     return;
@@ -142,7 +142,7 @@ module.exports = function (vars, pool) {
                             return;
                         }
 
-                        let throttle = type === "death" && lastType === "spawn" ? 10000/*10sec*/ : type === "spawn" && lastType === "music" ? 40000/*40sec*/ : 120000/*2min*/;
+                        let throttle = type === "death" && lastType === "spawn" ? 10000/*10sec*/ : type === "spawn" && lastType === "music" ? 40000/*40sec*/ : type === "death" && lastType === "music" ? 50000/*50sec*/ : 120000/*2min*/;
                         if (time - lastTime < throttle) {
                             res.status(429).json({
                                 success: false,
@@ -162,11 +162,11 @@ module.exports = function (vars, pool) {
 
                         connection.query(
                             "INSERT INTO hypixel_skyblock_magma_timer_ips (time,type,ipv4,ipv6,minecraftName,server,isMod,captcha_score) VALUES(?,?,?,?,?,?,?,?)",
-                            [date,type,ipv4,ipv6,username,server,isMod,captchaScore],function (err,results) {
+                            [date, type, ipv4, ipv6, username, server, isMod, captchaScore], function (err, results) {
                                 if (err) {
                                     console.warn(err);
                                     res.status(500).json({
-                                        success:false,
+                                        success: false,
                                         msg: "SQL error"
                                     });
                                     return;
@@ -176,12 +176,12 @@ module.exports = function (vars, pool) {
                                 let roundedDate = new Date(roundedTime);
 
                                 if (isMod) {
-                                    confirmationIncrease+=2;
+                                    confirmationIncrease += 2;
                                 }
 
                                 if (ipv6) {
                                     confirmationIncrease++;
-                                }else{
+                                } else {
                                     confirmationIncrease--;
                                 }
 
@@ -189,7 +189,7 @@ module.exports = function (vars, pool) {
 
                                 if (confirmationIncrease <= 0) {
                                     res.status(403).json({
-                                        success:false,
+                                        success: false,
                                         msg: ""
                                     });
                                     connection.release();
@@ -200,10 +200,11 @@ module.exports = function (vars, pool) {
 
                                 connection.query(
                                     "INSERT INTO hypixel_skyblock_magma_timer_events2 (hash,type,time_rounded,time_average,confirmations,time_latest) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE confirmations=confirmations+?, time_latest=?",
-                                    [hash, type, roundedDate, date, confirmationIncrease, date, confirmationIncrease, date],function (err,results) {
+                                    [hash, type, roundedDate, date, confirmationIncrease, date, confirmationIncrease, date], function (err, results) {
                                         if (err) {
+                                            console.warn(err);
                                             res.status(500).json({
-                                                success:false,
+                                                success: false,
                                                 msg: "SQL error"
                                             });
                                             return;
@@ -211,7 +212,7 @@ module.exports = function (vars, pool) {
 
                                         console.log("Added");
                                         res.json({
-                                            success:true,
+                                            success: true,
                                             msg: "Added!"
                                         })
 
@@ -256,6 +257,7 @@ module.exports = function (vars, pool) {
         if (req.body.captcha && !req.body.isModRequest) {
             recaptcha.checkResponse(req.body.captcha, function (err, captchaRes) {
                 if (err) {
+                    console.warn(err);
                     res.status(403).json({
                         success: false,
                         msg: "Captcha error"
