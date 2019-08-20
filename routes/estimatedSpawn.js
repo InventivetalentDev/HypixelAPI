@@ -3,7 +3,7 @@ const moment = require("moment");
 module.exports = function (vars, pool) {
     return function (req, res) {
         pool.query(
-            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM hypixel_skyblock_magma_timer_events2 WHERE confirmations >= 20 AND time_rounded >= NOW() - INTERVAL 2 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
+            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM hypixel_skyblock_magma_timer_events2 WHERE confirmations >= 30 AND time_rounded >= NOW() - INTERVAL 2 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
                 if (err) {
                     console.warn(err);
                     res.json({
