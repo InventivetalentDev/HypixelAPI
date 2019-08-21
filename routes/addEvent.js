@@ -2,7 +2,7 @@ const Recaptcha = require('recaptcha-verify');
 const crypto = require("crypto");
 const util = require("../util");
 
-const confirmationCheckFactor = 140 * 1000;
+const confirmationCheckFactor = 120 * 1000;
 
 module.exports = function (vars, pool) {
     const recaptcha = new Recaptcha({
@@ -172,7 +172,7 @@ module.exports = function (vars, pool) {
                                     return;
                                 }
 
-                                let roundedTime = Math.floor(Math.floor(time / confirmationCheckFactor) * confirmationCheckFactor);
+                                let roundedTime = Math.round(Math.round(time / confirmationCheckFactor) * confirmationCheckFactor);
                                 let roundedDate = new Date(roundedTime);
 
                                 if (isMod) {
