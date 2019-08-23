@@ -156,8 +156,19 @@ module.exports = function (vars, pool) {
 
         function sendCachedData() {
             fs.readFile("latestMagmaEstimate.json", "utf8", (err, data) => {
-                data = JSON.parse(data);
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    console.warn("Failed to parse cached estimate JSON", e);
+                    lastQueryTime = 0;
+                    res.status(500).json({
+                        success: false,
+                        msg: "Failed to parse cached json data"
+                    });
+                    return;
+                }
                 data.cached = true;
+                data.time = now;
                 res.json(data);
             })
         }
@@ -172,6 +183,7 @@ module.exports = function (vars, pool) {
                             lastQueryTime = now;
                         }
                         data.cached = false;
+                        data.time = now;
                         res.send(data);
                     })
                 } else {
