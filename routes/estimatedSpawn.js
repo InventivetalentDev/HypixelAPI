@@ -83,27 +83,8 @@ module.exports = function (vars, pool) {
 
                 let estimateSource = "none";
 
-                if (lastSpawn > 0) {
-                    let spawnsSinceLast = Math.floor((now - lastSpawn) / twoHoursInMillis);
-                    spawnsSinceLast++;
+                let prioritizeWaves = false;
 
-                    let estimate = lastSpawn + (spawnsSinceLast * twoHoursInMillis);
-                    averageEstimate += estimate * eventConfirmations["spawn"];
-                    averageEstimateCounter += eventConfirmations["spawn"];
-
-                    estimateSource = "spawn";
-                }
-
-                if (lastDeath > 0) {
-                    let deathsSinceLast = Math.floor((now - lastDeath) / twoHoursInMillis);
-                    deathsSinceLast++;
-
-                    let estimate = lastDeath + (deathsSinceLast * twoHoursInMillis);
-                    averageEstimate += estimate * eventConfirmations["death"];
-                    averageEstimateCounter += eventConfirmations["death"];
-
-                    estimateSource = "death";
-                }
 
                 if (lastBlaze > lastSpawn && lastBlaze > lastDeath && now - lastBlaze < twentyMinsInMillis) {
                     let estimate = lastBlaze + twentyMinsInMillis;
@@ -111,6 +92,10 @@ module.exports = function (vars, pool) {
                     averageEstimateCounter += eventConfirmations["blaze"];
 
                     estimateSource = "blaze";
+
+                    if (eventConfirmations["blaze"] > 100) {
+                        prioritizeWaves = true;
+                    }
                 }
                 if (lastMagma > lastSpawn && lastMagma > lastDeath && lastMagma > lastBlaze && now - lastMagma < tenMinsInMillis) {
                     let estimate = lastMagma + tenMinsInMillis;
@@ -118,6 +103,10 @@ module.exports = function (vars, pool) {
                     averageEstimateCounter += eventConfirmations["magma"];
 
                     estimateSource = "magma";
+
+                    if (eventConfirmations["blaze"] > 100) {
+                        prioritizeWaves = true;
+                    }
                 }
                 if (lastMusic > lastSpawn && lastMusic > lastDeath && lastMusic > lastBlaze && lastMusic > lastMagma && now - lastMusic < twoMinsInMillis) {
                     let estimate = lastMusic + twoMinsInMillis;
@@ -125,6 +114,30 @@ module.exports = function (vars, pool) {
                     averageEstimateCounter += eventConfirmations["music"];
 
                     estimateSource = "music";
+                }
+
+                if (!prioritizeWaves) {
+                    if (lastSpawn > 0) {
+                        let spawnsSinceLast = Math.floor((now - lastSpawn) / twoHoursInMillis);
+                        spawnsSinceLast++;
+
+                        let estimate = lastSpawn + (spawnsSinceLast * twoHoursInMillis);
+                        averageEstimate += estimate * eventConfirmations["spawn"];
+                        averageEstimateCounter += eventConfirmations["spawn"];
+
+                        estimateSource = "spawn";
+                    }
+
+                    if (lastDeath > 0) {
+                        let deathsSinceLast = Math.floor((now - lastDeath) / twoHoursInMillis);
+                        deathsSinceLast++;
+
+                        let estimate = lastDeath + (deathsSinceLast * twoHoursInMillis);
+                        averageEstimate += estimate * eventConfirmations["death"];
+                        averageEstimateCounter += eventConfirmations["death"];
+
+                        estimateSource = "death";
+                    }
                 }
 
 
