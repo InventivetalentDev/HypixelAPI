@@ -12,6 +12,7 @@ module.exports = function (vars, pool) {
     const thirtySecsInMillis = 30000;
 
     let lastQueryTime = 0;
+    let lastQueryResult;
 
     function queryDataFromDb(req, res, cb) {
         pool.query(
@@ -155,37 +156,48 @@ module.exports = function (vars, pool) {
         let now = Date.now();
 
         function sendCachedData() {
-            fs.readFile("latestMagmaEstimate.json", "utf8", (err, data) => {
-                try {
-                    data = JSON.parse(data);
-                } catch (e) {
-                    console.warn("Failed to parse cached estimate JSON", e);
-                    lastQueryTime = 0;
-                    res.status(500).json({
-                        success: false,
-                        msg: "Failed to parse cached json data"
-                    });
-                    return;
-                }
-                data.cached = true;
-                data.time = now;
-                res.json(data);
-            })
+            // fs.readFile("latestMagmaEstimate.json", "utf8", (err, data) => {
+            //     try {
+            //         data = JSON.parse(data);
+            //     } catch (e) {
+            //         console.warn("Failed to parse cached estimate JSON", e);
+            //         lastQueryTime = 0;
+            //         res.status(500).json({
+            //             success: false,
+            //             msg: "Failed to parse cached json data"
+            //         });
+            //         return;
+            //     }
+            //     data.cached = true;
+            //     data.time = now;
+            //     res.json(data);
+            // })
+
+            let data = lastQueryResult;
+            data.cached = true;
+            data.time = now;
+            res.json(data);
         }
 
-        if (now - lastQueryTime > thirtySecsInMillis) {// Load live data
+        if (now - lastQueryTime > thirtySecsInMillis || !lastQueryResult) {// Load live data
             queryDataFromDb(req, res, (err, data) => {
                 if (data) {
-                    fs.writeFile("latestMagmaEstimate.json", JSON.stringify(data), "utf8", (err) => {
-                        if (err) {
-                            console.warn(err);
-                        } else {
-                            lastQueryTime = now;
-                        }
-                        data.cached = false;
-                        data.time = now;
-                        res.send(data);
-                    })
+                    lastQueryResult = data;
+                    lastQueryTime = now;
+
+                    data.cached = false;
+                    data.time = now;
+                    res.send(data);
+                    // fs.writeFile("latestMagmaEstimate.json", JSON.stringify(data), "utf8", (err) => {
+                    //     if (err) {
+                    //         console.warn(err);
+                    //     } else {
+                    //         lastQueryTime = now;
+                    //     }
+                    //     data.cached = false;
+                    //     data.time = now;
+                    //     res.send(data);
+                    // })
                 } else {
                     sendCachedData();
                 }
