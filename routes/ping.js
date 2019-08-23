@@ -25,10 +25,11 @@ module.exports = function (vars, pool) {
 
         let isMod = (typeof req.body.minecraftUser !== "undefined") && (userAgent.startsWith("BossTimerMod/")||userAgent.startsWith("SkyblockAddons/")) && req.body.isModRequest === "true";
         // console.log("isMod: " + isMod);
+        let modName = isMod ? userAgent : "";
 
         pool.query(
-            "INSERT INTO hypixel_skyblock_magma_timer_pings (ip,time,active_time,minecraftName,isMod) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE time=?, active_time=?, minecraftName=?, isMod=?",
-            [cfIp, date, activeDate, username, isMod, date, activeDate, username, isMod], function (err, results) {
+            "INSERT INTO hypixel_skyblock_magma_timer_pings (ip,time,active_time,minecraftName,isMod,modName) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE time=?, active_time=?, minecraftName=?, isMod=?, modName=?",
+            [cfIp, date, activeDate, username, isMod, modName, date, activeDate, username, isMod, modName], function (err, results) {
                 if (err) {
                     console.warn(err);
                     res.status(500).json({

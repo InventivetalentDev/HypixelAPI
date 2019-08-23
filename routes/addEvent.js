@@ -92,6 +92,7 @@ module.exports = function (vars, pool) {
         let isMod = (typeof req.body.minecraftUser !== "undefined") && (userAgent.startsWith("BossTimerMod/")||userAgent.startsWith("SkyblockAddons/")) && req.body.isModRequest === "true";
         console.log("isMod: " + isMod);
 
+        let modName = isMod ? userAgent : "";
 
         function continueRequest(captchaRes) {
             console.log(captchaRes);
@@ -161,8 +162,8 @@ module.exports = function (vars, pool) {
 
 
                         connection.query(
-                            "INSERT INTO hypixel_skyblock_magma_timer_ips (time,type,ipv4,ipv6,minecraftName,server,isMod,captcha_score) VALUES(?,?,?,?,?,?,?,?)",
-                            [date, type, ipv4, ipv6, username, server, isMod, captchaScore], function (err, results) {
+                            "INSERT INTO hypixel_skyblock_magma_timer_ips (time,type,ipv4,ipv6,minecraftName,server,isMod,modName,captcha_score) VALUES(?,?,?,?,?,?,?,?,?)",
+                            [date, type, ipv4, ipv6, username, server, isMod, modName, captchaScore], function (err, results) {
                                 if (err) {
                                     console.warn(err);
                                     res.status(500).json({
