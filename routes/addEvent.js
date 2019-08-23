@@ -89,7 +89,7 @@ module.exports = function (vars, pool) {
             }
         }
 
-        let isMod = (typeof req.body.minecraftUser !== "undefined") && userAgent.startsWith("BossTimerMod/") && req.body.isModRequest === "true";
+        let isMod = (typeof req.body.minecraftUser !== "undefined") && (userAgent.startsWith("BossTimerMod/")||userAgent.startsWith("SkyblockAddons/")) && req.body.isModRequest === "true";
         console.log("isMod: " + isMod);
 
 
