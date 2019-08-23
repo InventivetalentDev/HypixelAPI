@@ -28,9 +28,9 @@ module.exports = function (vars, pool) {
                     "death": 0
                 };
 
-                if (!results || results.length<=0) {
+                if (!results || results.length <= 0) {
                     res.status(404).json({
-                        success:false,
+                        success: false,
                         msg: "There is no data available!"
                     });
                     return;
@@ -118,17 +118,22 @@ module.exports = function (vars, pool) {
                     estimateSource = "music";
                 }
 
+
                 if (averageEstimateCounter > 0) {
                     averageEstimate = Math.floor(averageEstimate / averageEstimateCounter);
                 }
 
+                // If the estimate source is still spawn/death, add another ~10mins
+                if (estimateSource === "spawn" || estimateSource === "death") {
+                    averageEstimate += tenMinsInMillis;
+                }
 
                 let estimateString = moment(averageEstimate).fromNow();
 
                 res.json({
                     success: true,
                     msg: "",
-                    time:now,
+                    time: now,
                     latest: eventTimes,
                     latestConfirmations: eventConfirmations,
                     estimate: averageEstimate,
