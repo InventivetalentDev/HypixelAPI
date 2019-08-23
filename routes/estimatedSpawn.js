@@ -1,7 +1,19 @@
 const moment = require("moment");
+const fs = require("fs");
 
 module.exports = function (vars, pool) {
-    return function (req, res) {
+
+    const twoHoursInMillis = 7.2e+6;
+    const twentyMinsInMillis = 1.2e+6;
+    const tenMinsInMillis = 600000;
+    const fiveMinsInMillis = 300000;
+    const twoMinsInMillis = 120000;
+    const oneMinInMillis = 60000;
+    const thirtySecsInMillis = 30000;
+
+    let lastQueryTime = 0;
+
+    function queryDataFromDb(req, res, cb) {
         pool.query(
             "SELECT type,time_rounded,confirmations,time_average,time_latest FROM hypixel_skyblock_magma_timer_events2 WHERE confirmations >= 30 AND time_rounded >= NOW() - INTERVAL 2 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
                 if (err) {
@@ -10,6 +22,7 @@ module.exports = function (vars, pool) {
                         success: false,
                         msg: "sql error"
                     });
+                    cb(err, null);
                     return;
                 }
 
@@ -33,6 +46,7 @@ module.exports = function (vars, pool) {
                         success: false,
                         msg: "There is no data available!"
                     });
+                    cb(err, null);
                     return;
                 }
 
@@ -54,12 +68,6 @@ module.exports = function (vars, pool) {
                 }
 
                 let now = Date.now();
-
-                let twoHoursInMillis = 7.2e+6;
-                let twentyMinsInMillis = 1.2e+6;
-                let tenMinsInMillis = 600000;
-                let fiveMinsInMillis = 300000;
-                let twoMinsInMillis = 120000;
 
 
                 let lastBlaze = eventTimes["blaze"];
@@ -130,10 +138,10 @@ module.exports = function (vars, pool) {
 
                 let estimateString = moment(averageEstimate).fromNow();
 
-                res.json({
+                cb(null, {
                     success: true,
                     msg: "",
-                    time: now,
+                    queryTime: now,
                     latest: eventTimes,
                     latestConfirmations: eventConfirmations,
                     estimate: averageEstimate,
@@ -142,4 +150,38 @@ module.exports = function (vars, pool) {
                 });
             })
     }
+
+    return function (req, res) {
+        let now = Date.now();
+
+        function sendCachedData() {
+            fs.readFile("latestMagmaEstimate.json", "utf8", (err, data) => {
+                data = JSON.parse(data);
+                data.cached = true;
+                res.json(data);
+            })
+        }
+
+        if (now - lastQueryTime > thirtySecsInMillis) {// Load live data
+            queryDataFromDb(req, res, (err, data) => {
+                if (data) {
+                    fs.writeFile("latestMagmaEstimate.json", JSON.stringify(data), "utf8", (err) => {
+                        if (err) {
+                            console.warn(err);
+                        } else {
+                            lastQueryTime = now;
+                        }
+                        data.cached = false;
+                        res.send(data);
+                    })
+                } else {
+                    sendCachedData();
+                }
+            });
+        } else { // Send cached version instead
+            sendCachedData();
+        }
+    }
 };
+
+
