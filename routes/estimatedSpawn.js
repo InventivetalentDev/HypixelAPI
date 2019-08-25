@@ -104,7 +104,7 @@ module.exports = function (vars, pool) {
 
                     estimateSource = "magma";
 
-                    if (eventConfirmations["blaze"] > 100) {
+                    if (eventConfirmations["magma"] > 100) {
                         prioritizeWaves = true;
                     }
                 }
