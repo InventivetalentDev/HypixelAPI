@@ -215,7 +215,8 @@ module.exports = function (vars, pool) {
                                         res.json({
                                             success: true,
                                             msg: "Added!"
-                                        })
+                                        });
+                                        console.log(" ");
 
                                         connection.release();
                                     });
