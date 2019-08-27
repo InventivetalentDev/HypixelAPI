@@ -52,7 +52,7 @@ module.exports = function (vars, pool) {
                 success: true,
                 msg: "",
                 // users: users,
-                grouped: grouped,
+                // grouped: grouped,
                 ranking: ranking
             })
         })
