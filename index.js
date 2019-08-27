@@ -54,6 +54,8 @@ app.get("/api", (req, res) => {
 
 app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/activeUsers")(vars, pool));
 app.get("/api/skyblock/bosstimer/magma/eventStats", require("./routes/eventStats")(vars, pool));
+app.get("/api/skyblock/bosstimer/magma/mostActiveUsers", require("./routes/mostActiveUsers")(vars, pool));
+
 app.get("/api/skyblock/bosstimer/magma/estimatedSpawn", require("./routes/estimatedSpawn")(vars, pool));
 app.get("/api/skyblock/bosstimer/magma/userCheck", require("./routes/userCheck")(vars, pool));
 app.get("/api/skyblock/bosstimer/magma/historyChart", require("./routes/historyChart")(vars, pool));
