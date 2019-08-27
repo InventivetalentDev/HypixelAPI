@@ -52,15 +52,15 @@ app.get("/api", (req, res) => {
     });
 });
 
-app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/activeUsers")(vars, pool));
-app.get("/api/skyblock/bosstimer/magma/eventStats", require("./routes/eventStats")(vars, pool));
-app.get("/api/skyblock/bosstimer/magma/mostActiveUsers", require("./routes/mostActiveUsers")(vars, pool));
+app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/magmaBossTimer/activeUsers")(vars, pool));
+app.get("/api/skyblock/bosstimer/magma/eventStats", require("./routes/magmaBossTimer/eventStats")(vars, pool));
+app.get("/api/skyblock/bosstimer/magma/mostActiveUsers", require("./routes/magmaBossTimer/mostActiveUsers")(vars, pool));
 
-app.get("/api/skyblock/bosstimer/magma/estimatedSpawn", require("./routes/estimatedSpawn")(vars, pool));
-app.get("/api/skyblock/bosstimer/magma/userCheck", require("./routes/userCheck")(vars, pool));
-app.get("/api/skyblock/bosstimer/magma/historyChart", require("./routes/historyChart")(vars, pool));
-app.post("/api/skyblock/bosstimer/magma/addEvent", require("./routes/addEvent")(vars, pool));
-app.post("/api/skyblock/bosstimer/magma/ping", require("./routes/ping")(vars, pool));
+app.get("/api/skyblock/bosstimer/magma/estimatedSpawn", require("./routes/magmaBossTimer/estimatedSpawn")(vars, pool));
+app.get("/api/skyblock/bosstimer/magma/userCheck", require("./routes/magmaBossTimer/userCheck")(vars, pool));
+app.get("/api/skyblock/bosstimer/magma/historyChart", require("./routes/magmaBossTimer/historyChart")(vars, pool));
+app.post("/api/skyblock/bosstimer/magma/addEvent", require("./routes/magmaBossTimer/addEvent")(vars, pool));
+app.post("/api/skyblock/bosstimer/magma/ping", require("./routes/magmaBossTimer/ping")(vars, pool));
 
 
 app.listen(port, () => console.log(`Example app listening on port ${ port }!`))

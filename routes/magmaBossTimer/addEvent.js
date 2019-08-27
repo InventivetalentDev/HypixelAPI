@@ -1,6 +1,6 @@
 const Recaptcha = require('recaptcha-verify');
 const crypto = require("crypto");
-const util = require("../util");
+const util = require("../../util");
 
 const confirmationCheckFactor = 120 * 1000;
 

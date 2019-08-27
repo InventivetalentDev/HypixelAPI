@@ -1,4 +1,4 @@
-const moment = require("moment");
+const moment = require("moment/moment");
 const fs = require("fs");
 
 module.exports = function (vars, pool) {
