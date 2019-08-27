@@ -52,6 +52,10 @@ app.get("/api", (req, res) => {
     });
 });
 
+
+
+/// Magma Boss Stuff
+
 app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/magmaBossTimer/activeUsers")(vars, pool));
 app.get("/api/skyblock/bosstimer/magma/eventStats", require("./routes/magmaBossTimer/eventStats")(vars, pool));
 app.get("/api/skyblock/bosstimer/magma/mostActiveUsers", require("./routes/magmaBossTimer/mostActiveUsers")(vars, pool));
@@ -63,7 +67,7 @@ app.post("/api/skyblock/bosstimer/magma/addEvent", require("./routes/magmaBossTi
 app.post("/api/skyblock/bosstimer/magma/ping", require("./routes/magmaBossTimer/ping")(vars, pool));
 
 
-app.listen(port, () => console.log(`Example app listening on port ${ port }!`))
+app.listen(port, () => console.log(`Example app listening on port ${ port }!`));
 
 process.on('uncaughtException', function (err) {
     console.log('Caught exception: ');
