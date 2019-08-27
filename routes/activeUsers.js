@@ -10,6 +10,7 @@ module.exports = function (vars, pool) {
                 return;
             }
 
+            res.set("Cache-Control","public, max-age=60");
             res.json({
                 success: true,
                 msg: "",

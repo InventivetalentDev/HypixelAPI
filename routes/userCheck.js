@@ -42,6 +42,7 @@ module.exports = function (vars, pool) {
                 status[names.indexOf(result.minecraftName)] = result.isMod === 1;
             }
 
+            res.set("Cache-Control","public, max-age=30000");
             res.json({
                 success: true,
                 status: status
