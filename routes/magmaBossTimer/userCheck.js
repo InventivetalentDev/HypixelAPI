@@ -25,7 +25,7 @@ module.exports = function (vars, pool) {
 
 
         let joined = questionmarks.join(",");
-        pool.query("SELECT minecraftName,isMod FROM hypixel_skyblock_magma_timer_pings WHERE isMod=1 AND minecraftName IN (" + joined + ") LIMIT 32", names, function (err, results) {
+        pool.query("SELECT minecraftName,isMod FROM skyblock_magma_timer_pings WHERE isMod=1 AND minecraftName IN (" + joined + ") LIMIT 32", names, function (err, results) {
             if (err) {
                 console.warn(err);
                 res.json({

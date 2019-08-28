@@ -162,7 +162,7 @@ module.exports = function (vars, pool) {
 
 
                         connection.query(
-                            "INSERT INTO hypixel_skyblock_magma_timer_ips (time,type,ipv4,ipv6,minecraftName,server,isMod,modName,captcha_score) VALUES(?,?,?,?,?,?,?,?,?)",
+                            "INSERT INTO skyblock_magma_timer_ips (time,type,ipv4,ipv6,minecraftName,server,isMod,modName,captcha_score) VALUES(?,?,?,?,?,?,?,?,?)",
                             [date, type, ipv4, ipv6, username, server, isMod, modName, captchaScore], function (err, results) {
                                 if (err) {
                                     console.warn(err);
@@ -200,7 +200,7 @@ module.exports = function (vars, pool) {
                                 let hash = crypto.createHash("md5").update(type + roundedDate.toUTCString()).digest("hex");
 
                                 connection.query(
-                                    "INSERT INTO hypixel_skyblock_magma_timer_events2 (hash,type,time_rounded,time_average,confirmations,time_latest) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE confirmations=confirmations+?, time_latest=?",
+                                    "INSERT INTO skyblock_magma_timer_events (hash,type,time_rounded,time_average,confirmations,time_latest) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE confirmations=confirmations+?, time_latest=?",
                                     [hash, type, roundedDate, date, confirmationIncrease, date, confirmationIncrease, date], function (err, results) {
                                         if (err) {
                                             console.warn(err);
@@ -245,11 +245,11 @@ module.exports = function (vars, pool) {
                 }
 
                 if (!ipv6) {
-                    connection.query("SELECT time,type FROM hypixel_skyblock_magma_timer_ips WHERE  ipv4=? ORDER BY time DESC LIMIT 1", ipv4, ipSqlCallback);
+                    connection.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv4=? ORDER BY time DESC LIMIT 1", ipv4, ipSqlCallback);
                 } else if (!ipv4) {
-                    connection.query("SELECT time,type FROM hypixel_skyblock_magma_timer_ips WHERE  ipv6=? ORDER BY time DESC LIMIT 1", ipv6, ipSqlCallback);
+                    connection.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv6=? ORDER BY time DESC LIMIT 1", ipv6, ipSqlCallback);
                 } else {
-                    connection.query("SELECT time,type FROM hypixel_skyblock_magma_timer_ips WHERE ipv4=? OR ipv6=? ORDER BY time DESC LIMIT 1", [ipv4, ipv6], ipSqlCallback);
+                    connection.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE ipv4=? OR ipv6=? ORDER BY time DESC LIMIT 1", [ipv4, ipv6], ipSqlCallback);
                 }
 
 

@@ -1,6 +1,6 @@
 module.exports = function (vars, pool) {
     return function (req, res) {
-        pool.query("SELECT minecraftName,COUNT(*) as count FROM `hypixel_skyblock_magma_timer_ips` GROUP BY minecraftName ORDER BY count DESC", function (err, results) {
+        pool.query("SELECT minecraftName,COUNT(*) as count FROM skyblock_magma_timer_ips GROUP BY minecraftName ORDER BY count DESC", function (err, results) {
             if (err) {
                 console.warn(err);
                 res.json({

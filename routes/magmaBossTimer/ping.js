@@ -28,7 +28,7 @@ module.exports = function (vars, pool) {
         let modName = isMod ? userAgent : "";
 
         pool.query(
-            "INSERT INTO hypixel_skyblock_magma_timer_pings (ip,time,active_time,minecraftName,isMod,modName) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE time=?, active_time=?, minecraftName=?, isMod=?, modName=?",
+            "INSERT INTO skyblock_magma_timer_pings (ip,time,active_time,minecraftName,isMod,modName) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE time=?, active_time=?, minecraftName=?, isMod=?, modName=?",
             [cfIp, date, activeDate, username, isMod, modName, date, activeDate, username, isMod, modName], function (err, results) {
                 if (err) {
                     console.warn(err);
