@@ -1,7 +1,18 @@
 const moment = require("moment/moment");
 const fs = require("fs");
+const OneSignal = require("onesignal-node");
 
 module.exports = function (vars, pool) {
+
+    const OneSignalClient = new OneSignal.Client({
+        userAuthKey: vars.oneSignal.userKey,
+        app: {
+            appAuthKey: vars.oneSignal.restKey,
+            appId: vars.oneSignal.appId
+        }
+    });
+
+    let latestOneSignalNotification;
 
     const twoHoursInMillis = 7.2e+6;
     const twentyMinsInMillis = 1.2e+6;
@@ -162,6 +173,33 @@ module.exports = function (vars, pool) {
                     estimateRelative: estimateString,
                     estimateSource: estimateSource
                 });
+
+
+                let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
+                if (!latestOneSignalNotification) {
+                    if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
+                        console.log("Sending OneSignal push notification...");
+
+                        latestOneSignalNotification = new OneSignal.Notification({
+                            template_id: "bffa9fcd-c6a8-4922-87a4-3cdad28a7f05"
+                        });
+                        latestOneSignalNotification.postBody["included_segments"] = ["Active Users"];
+                        latestOneSignalNotification.postBody["excluded_segments"] = ["Banned Users"];
+
+                        OneSignalClient.sendNotification(latestOneSignalNotification, function (err, response, data) {
+                            if (err) {
+                                console.warn("Failed to send OneSignal notification", err);
+                            } else {
+                                console.log("OneSignal notification sent!");
+                                console.log(data);
+                            }
+                        })
+                    }
+                } else {
+                    if (minutesUntilNextSpawn <= 5 || minutesUntilNextSpawn >= 20) {
+                        latestOneSignalNotification = null;
+                    }
+                }
             })
     }
 
@@ -200,7 +238,7 @@ module.exports = function (vars, pool) {
 
                     data.cached = false;
                     data.time = now;
-                    res.set("Cache-Control","public, max-age=30");
+                    res.set("Cache-Control", "public, max-age=30");
                     res.send(data);
                     // fs.writeFile("latestMagmaEstimate.json", JSON.stringify(data), "utf8", (err) => {
                     //     if (err) {
