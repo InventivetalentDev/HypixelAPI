@@ -14,7 +14,7 @@ module.exports = function (vars, pool) {
         sinceHours = Math.max(4, Math.min(24, sinceHours));
 
         pool.query(
-            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 15 AND time_rounded > NOW() - INTERVAL ? HOUR ORDER BY time_rounded ASC, confirmations DESC",
+            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 25 AND time_rounded > NOW() - INTERVAL ? HOUR ORDER BY time_rounded ASC, confirmations DESC",
             sinceHours,
             function (err, results) {
                 if (err) {
