@@ -69,12 +69,11 @@ module.exports = function (vars, pool) {
                     let averageTime = (result.time_average.getTime() + result.time_latest.getTime()) / 2;
                     let confirmations = result.confirmations;
 
-                    if (eventTimes[type] <= 0 || (confirmations > eventConfirmations[type] && (Math.abs(eventTimes[type] - averageTime) < 120000))) {
+                    let moreAccurateThanLast = (confirmations > eventConfirmations[type] && (Math.abs(eventTimes[type] - averageTime) < 240000));
+                    if (eventTimes[type] <= 0 || moreAccurateThanLast) {
                         eventTimes[type] = averageTime;
                     }
-
-
-                    if (eventConfirmations[type] <= 0) {
+                    if (eventConfirmations[type] <= 0 || moreAccurateThanLast) {
                         eventConfirmations[type] = confirmations;
                     }
                 }
@@ -171,7 +170,8 @@ module.exports = function (vars, pool) {
                     latestConfirmations: eventConfirmations,
                     estimate: averageEstimate,
                     estimateRelative: estimateString,
-                    estimateSource: estimateSource
+                    estimateSource: estimateSource,
+                    prioritizingWaves: prioritizeWaves
                 });
 
 
