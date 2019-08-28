@@ -52,10 +52,11 @@ app.get("/api", (req, res) => {
     });
 });
 
+/// User Proxy
+app.get("/api/player", require("./routes/user/userProxy")(vars, pool));
 
 
 /// Magma Boss Stuff
-
 app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/magmaBossTimer/activeUsers")(vars, pool));
 app.get("/api/skyblock/bosstimer/magma/eventStats", require("./routes/magmaBossTimer/eventStats")(vars, pool));
 app.get("/api/skyblock/bosstimer/magma/mostActiveUsers", require("./routes/magmaBossTimer/mostActiveUsers")(vars, pool));
