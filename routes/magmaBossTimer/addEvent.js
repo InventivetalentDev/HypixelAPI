@@ -45,6 +45,7 @@ module.exports = function (vars, pool) {
             });
             return;
         }
+        console.log(cfIp);
         let userAgent = req.header("User-Agent");
         console.log(userAgent);
 
@@ -231,6 +232,7 @@ module.exports = function (vars, pool) {
                                 confirmationIncrease += 2;
                                 nameCallback();
                             } else {
+                                console.warn("Invalid username provided");
                                 res.status(400).json({
                                     success: false,
                                     msg: "LOL. Nope."
