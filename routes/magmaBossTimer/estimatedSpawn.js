@@ -176,7 +176,7 @@ module.exports = function (vars, pool) {
 
 
                 let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
-                if (!latestOneSignalNotification) {
+                if (!latestOneSignalNotification && prioritizeWaves) {
                     if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
                         console.log("Sending OneSignal push notification...");
 
