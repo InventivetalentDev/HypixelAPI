@@ -17,6 +17,9 @@ app.use(cors({
     origin: "https://hypixel.inventivetalent.org"
 }));
 
+let swStats = require('swagger-stats');
+app.use(swStats.getMiddleware( vars.swagger));
+
 const limiter = rateLimit({
     windowMs: 2 * 60 * 1000, // 2 minutes
     max: 100 // limit each IP to 10 requests per windowMs
