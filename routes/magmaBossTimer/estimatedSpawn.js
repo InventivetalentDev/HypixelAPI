@@ -227,6 +227,7 @@ module.exports = function (vars, pool) {
             let data = lastQueryResult;
             data.cached = true;
             data.time = now;
+            res.set("Cache-Control", "public, max-age=30");
             res.json(data);
         }
 
