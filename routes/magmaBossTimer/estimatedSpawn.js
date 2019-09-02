@@ -227,6 +227,7 @@ module.exports = function (vars, pool) {
             let data = lastQueryResult;
             data.cached = true;
             data.time = now;
+            res.set("X-Cached", "true");
             res.set("Cache-Control", "public, max-age=30");
             res.json(data);
         }
@@ -239,6 +240,7 @@ module.exports = function (vars, pool) {
 
                     data.cached = false;
                     data.time = now;
+                    res.set("X-Cached", "false");
                     res.set("Cache-Control", "public, max-age=30");
                     res.send(data);
                     // fs.writeFile("latestMagmaEstimate.json", JSON.stringify(data), "utf8", (err) => {

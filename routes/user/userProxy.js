@@ -94,6 +94,7 @@ module.exports = function (vars, pool) {
                     }
                 );
 
+                res.set("X-Cached", "false");
                 res.set("Cache-Control", "public, max-age=60000");
                 res.json({
                     success: true,
@@ -140,6 +141,7 @@ module.exports = function (vars, pool) {
                         return;
                     }
 
+                    res.set("X-Cached", "true");
                     res.set("Cache-Control", "public, max-age=60000");
                     res.json({
                         success: true,
