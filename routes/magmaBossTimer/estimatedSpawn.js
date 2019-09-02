@@ -1,6 +1,7 @@
 const moment = require("moment/moment");
 const fs = require("fs");
 const OneSignal = require("onesignal-node");
+const crypto = require("crypto");
 
 module.exports = function (vars, pool) {
 
@@ -24,6 +25,7 @@ module.exports = function (vars, pool) {
 
     let lastQueryTime = 0;
     let lastQueryResult;
+    let lastQueryHash;
 
     function queryDataFromDb(req, res, cb) {
         pool.query(
@@ -254,6 +256,7 @@ module.exports = function (vars, pool) {
             res.set("X-Cached", "true");
             res.set("Cache-Control", "public, max-age=60");
             res.set("Last-Modified", (new Date(data.latestEvent).toUTCString()));
+            res.set("ETag", "\""+lastQueryHash+"\"");
             res.json(data);
         }
 
@@ -262,12 +265,14 @@ module.exports = function (vars, pool) {
                 if (data) {
                     lastQueryResult = data;
                     lastQueryTime = now;
+                    lastQueryHash = crypto.createHash("md5").update("IAmSomeRandomData" + JSON.stringify(lastQueryResult)).digest("hex");
 
                     data.cached = false;
                     data.time = now;
                     res.set("X-Cached", "false");
                     res.set("Cache-Control", "public, max-age=120");
                     res.set("Last-Modified", (new Date(data.latestEvent).toUTCString()));
+                    res.set("ETag", "\""+lastQueryHash+"\"");
                     res.send(data);
                     // fs.writeFile("latestMagmaEstimate.json", JSON.stringify(data), "utf8", (err) => {
                     //     if (err) {
