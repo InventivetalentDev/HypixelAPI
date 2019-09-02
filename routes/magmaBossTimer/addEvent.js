@@ -15,6 +15,8 @@ module.exports = function (vars, pool) {
         console.log("addEvent");
         console.log(req.body);
 
+        res.set("Cache-Control","public, max-age=20");
+
         if (!req.body.type) {
             res.status(400).json({
                 success: false,

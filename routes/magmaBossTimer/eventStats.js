@@ -23,22 +23,32 @@ module.exports = function (vars, pool) {
 
                 let t = result.time_rounded.getTime();
 
-                if (result.type === "blaze" && result.confirmations>100) {
-                    events[result.type].push([t - 1.8e+6, 0]);
-                }
+                // if (result.type === "blaze" && result.confirmations>100) {
+                //     events[result.type].push([t - 1.8e+6, 0]);
+                // }
 
                 events[result.type].push([t, result.confirmations]);
 
-                if (result.type === "death" && result.confirmations>100) {
-                    events[result.type].push([t + 1.8e+6, 0]);
+                for (let k in events) {
+                    if (k !== result.type) {
+                        events[k].push([t, 0]);
+                    }
                 }
+
+                // if (result.type === "death" && result.confirmations>100) {
+                //     events[result.type].push([t + 1.8e+6, 0]);
+                // }
             }
 
             let mapped = [];
             for (let k in events) {
+                let arr = events[k];
+                arr.sort(function () {
+                    return arr[0]-arr[1];
+                })
                 mapped.push({
                     name: k,
-                    data: events[k]
+                    data: arr
                 })
             }
 

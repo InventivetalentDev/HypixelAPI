@@ -91,6 +91,8 @@ module.exports = function (vars, pool) {
                 let averageEstimate = 0;
                 let averageEstimateCounter = 0;
 
+                let latestEvent = 0;
+
                 let estimateSource = "none";
 
                 let prioritizeWaves = false;
@@ -106,6 +108,10 @@ module.exports = function (vars, pool) {
                     if (eventConfirmations["blaze"] > 100) {
                         prioritizeWaves = true;
                     }
+
+                    if (lastBlaze > latestEvent) {
+                        latestEvent = lastBlaze;
+                    }
                 }
                 if (lastMagma > lastSpawn && lastMagma > lastDeath && lastMagma > lastBlaze && now - lastMagma < tenMinsInMillis) {
                     let estimate = lastMagma + tenMinsInMillis;
@@ -117,6 +123,10 @@ module.exports = function (vars, pool) {
                     if (eventConfirmations["magma"] > 100) {
                         prioritizeWaves = true;
                     }
+
+                    if (lastMagma > latestEvent) {
+                        latestEvent = lastMagma;
+                    }
                 }
                 if (lastMusic > lastSpawn && lastMusic > lastDeath && lastMusic > lastBlaze && lastMusic > lastMagma && now - lastMusic < twoMinsInMillis) {
                     let estimate = lastMusic + twoMinsInMillis;
@@ -124,6 +134,10 @@ module.exports = function (vars, pool) {
                     averageEstimateCounter += eventConfirmations["music"];
 
                     estimateSource = "music";
+
+                    if (lastMusic > latestEvent) {
+                        latestEvent = lastMusic;
+                    }
                 }
 
                 if (!prioritizeWaves) {
@@ -136,6 +150,10 @@ module.exports = function (vars, pool) {
                         averageEstimateCounter += eventConfirmations["spawn"];
 
                         estimateSource = "spawn";
+
+                        if (lastSpawn > latestEvent) {
+                            latestEvent = lastSpawn;
+                        }
                     }
 
                     if (lastDeath > 0) {
@@ -147,6 +165,11 @@ module.exports = function (vars, pool) {
                         averageEstimateCounter += eventConfirmations["death"];
 
                         estimateSource = "death";
+
+
+                        if (lastDeath > latestEvent) {
+                            latestEvent = lastDeath;
+                        }
                     }
                 }
 
@@ -167,6 +190,7 @@ module.exports = function (vars, pool) {
                     msg: "",
                     queryTime: now,
                     latest: eventTimes,
+                    latestEvent: latestEvent,
                     latestConfirmations: eventConfirmations,
                     estimate: averageEstimate,
                     estimateRelative: estimateString,
@@ -229,6 +253,7 @@ module.exports = function (vars, pool) {
             data.time = now;
             res.set("X-Cached", "true");
             res.set("Cache-Control", "public, max-age=60");
+            res.set("Last-Modified", (new Date(data.latestEvent).toUTCString()));
             res.json(data);
         }
 
@@ -242,6 +267,7 @@ module.exports = function (vars, pool) {
                     data.time = now;
                     res.set("X-Cached", "false");
                     res.set("Cache-Control", "public, max-age=120");
+                    res.set("Last-Modified", (new Date(data.latestEvent).toUTCString()));
                     res.send(data);
                     // fs.writeFile("latestMagmaEstimate.json", JSON.stringify(data), "utf8", (err) => {
                     //     if (err) {
