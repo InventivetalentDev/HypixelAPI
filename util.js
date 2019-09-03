@@ -1,4 +1,5 @@
 const request = require("request");
+const crypto = require("crypto");
 
 module.exports.verifyMinecraftUsername = function (username, cb) {
     request({
@@ -15,4 +16,8 @@ module.exports.verifyMinecraftUsername = function (username, cb) {
             }
         }
     })
+};
+
+module.exports.createUrlHash= function (parsedUrl) {
+  return  crypto.createHash("sha256").update(parsedUrl.protocol + "_" + parsedUrl.host + "_" + parsedUrl.pathname + "_" + parsedUrl.username + "_" + parsedUrl.password + "_" + parsedUrl.href).digest("hex")
 };

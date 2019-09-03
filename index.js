@@ -70,6 +70,9 @@ app.get("/api/skyblock/bosstimer/magma/historyChart", require("./routes/magmaBos
 app.post("/api/skyblock/bosstimer/magma/addEvent", require("./routes/magmaBossTimer/addEvent")(vars, pool));
 app.post("/api/skyblock/bosstimer/magma/ping", require("./routes/magmaBossTimer/ping")(vars, pool));
 
+app.put("/api/webhook/skyblock/bosstimer/add", require("./routes/magmaBossTimer/webhooks/addWebhook")(vars, pool));
+app.delete("/api/webhook/skyblock/bosstimer/delete", require("./routes/magmaBossTimer/webhooks/deleteWebhook")(vars, pool));
+
 
 app.listen(port, () => console.log(`Example app listening on port ${ port }!`));
 
