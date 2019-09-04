@@ -13,6 +13,8 @@ module.exports = function (vars, pool) {
         }
     });
 
+    const webhookRunner = require("../../webhookRunner")(pool);
+
     let latestOneSignalNotification;
 
     const twoHoursInMillis = 7.2e+6;
@@ -187,7 +189,7 @@ module.exports = function (vars, pool) {
 
                 let estimateString = moment(averageEstimate).fromNow();
 
-                cb(null, {
+                let theData = {
                     success: true,
                     msg: "",
                     queryTime: now,
@@ -198,7 +200,8 @@ module.exports = function (vars, pool) {
                     estimateRelative: estimateString,
                     estimateSource: estimateSource,
                     prioritizingWaves: prioritizeWaves
-                });
+                };
+                cb(null, theData);
 
 
                 let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
@@ -220,6 +223,10 @@ module.exports = function (vars, pool) {
                                 console.log(data);
                             }
                         })
+
+
+                        console.log("Posting webhooks...");
+                        webhookRunner.queryWebhooksAndRun(theData);
                     }
                 } else {
                     if (minutesUntilNextSpawn <= 5 || minutesUntilNextSpawn >= 20) {
