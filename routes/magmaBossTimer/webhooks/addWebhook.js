@@ -18,7 +18,7 @@ module.exports = function (vars, pool) {
             });
             return;
         }
-        if (!req.body.captcha) {
+        if (!req.body.captcha/*&&!req.body.isFromDiscordBot*/) {
             res.status(403).json({
                 success: false,
                 msg: ""
@@ -35,69 +35,76 @@ module.exports = function (vars, pool) {
             return;
         }
 
-
-        recaptcha.checkResponse(req.body.captcha, function (err, captchaRes) {
-            if (err) {
-                console.warn(err);
-                res.status(403).json({
-                    success: false,
-                    msg: "Captcha error"
-                });
-                return;
+        let format = "custom";
+        if (parsedUrl.protocol.startsWith("https")) {
+            if (parsedUrl.hostname === "discordapp.com" && parsedUrl.pathname.startsWith("/api/webhooks")) {
+                format = "discord";
             }
-            if (captchaRes.success) {
-                console.log("recaptcha good!");
+        }
 
-                let urlHash = util.createUrlHash(parsedUrl);
+        function continueSetup() {
+            let urlHash = util.createUrlHash(parsedUrl);
 
-                let format = "custom";
-                if (parsedUrl.protocol.startsWith("https")) {
-                    if (parsedUrl.hostname === "discordapp.com" && parsedUrl.pathname.startsWith("/api/webhooks")) {
-                        format = "discord";
-                    }
-                }
+            console.log(parsedUrl.protocol);
+            console.log(parsedUrl.hostname);
+            console.log(parsedUrl.pathname);
 
-                console.log(parsedUrl.protocol);
-                console.log(parsedUrl.hostname);
-                console.log(parsedUrl.pathname);
+            console.log("adding webhook for " + parsedUrl.href);
 
-                console.log("adding webhook for " + parsedUrl.href);
-
-                pool.query(
-                    "INSERT INTO skyblock_magma_timer_webhooks (url_hash,url,format) VALUES(?,?,?)",
-                    [urlHash, parsedUrl.href, format], function (err, results) {
-                        if (err) {
-                            if (err.code === 'ER_DUP_ENTRY') {
-                                res.status(400).json({
-                                    success:false,
-                                    msg:"Duplicate webhook"
-                                })
-                                return;
-                            }
-
-                            console.warn(err);
-                            res.status(500).json({
-                                success: false,
-                                msg: "SQL error"
-                            });
+            pool.query(
+                "INSERT INTO skyblock_magma_timer_webhooks (url_hash,url,format) VALUES(?,?,?)",
+                [urlHash, parsedUrl.href, format], function (err, results) {
+                    if (err) {
+                        if (err.code === 'ER_DUP_ENTRY') {
+                            res.status(400).json({
+                                success:false,
+                                msg:"Duplicate webhook"
+                            })
                             return;
                         }
 
-                        console.log("Webhook Added");
-                        res.json({
-                            success: true,
-                            msg: "Webhook created",
-                            format: format
+                        console.warn(err);
+                        res.status(500).json({
+                            success: false,
+                            msg: "SQL error"
                         });
+                        return;
+                    }
+
+                    console.log("Webhook Added");
+                    res.json({
+                        success: true,
+                        msg: "Webhook created",
+                        format: format
                     });
-            } else {
-                console.log("recaptcha bad :(");
-                res.status(403).json({
-                    success: false,
-                    msg: "Failed to verify captcha"
-                })
-            }
-        });
+                });
+        }
+
+        // if (req.body.isFromDiscordBot&&format==="discord") {
+        //     continueSetup();
+        // }else{
+            recaptcha.checkResponse(req.body.captcha, function (err, captchaRes) {
+                if (err) {
+                    console.warn(err);
+                    res.status(403).json({
+                        success: false,
+                        msg: "Captcha error"
+                    });
+                    return;
+                }
+                if (captchaRes.success) {
+                    console.log("recaptcha good!");
+
+                    continueSetup();
+                } else {
+                    console.log("recaptcha bad :(");
+                    res.status(403).json({
+                        success: false,
+                        msg: "Failed to verify captcha"
+                    })
+                }
+            });
+        // }
 
     };
 };

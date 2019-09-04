@@ -1,7 +1,7 @@
 const request = require("request");
 const moment = require("moment");
 
-function doPost(data, url, format) {
+function doPost(data, url, format, connection, targetId) {
     console.log("POST (" + format + ") " + url);
 
     let webUrl = "https://hypixel.inventivetalent.org/skyblock-magma-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
@@ -59,6 +59,14 @@ function doPost(data, url, format) {
         }
         console.log(response.statusCode);
         console.log(body);
+
+        if (response.statusCode < 200 || response.statusCode > 230) {// error
+            connection.query("UPDATE skyblock_magma_timer_webhooks SET errorCounter = errorCounter+1 WHERE id=?",[targetId],function (err,results) {
+            })
+        }else{// success
+            connection.query("UPDATE skyblock_magma_timer_webhooks SET successCounter = successCounter+1 WHERE id=?",[targetId],function (err,results) {
+            })
+        }
     });
 }
 
@@ -66,7 +74,7 @@ module.exports = function (pool) {
     let stack = [];
 
     let queryWebhooks = function queryWebhooks(cb) {
-        pool.query("SELECT * FROM skyblock_magma_timer_webhooks", function (err, results) {
+        pool.query("SELECT * FROM skyblock_magma_timer_webhooks WHERE errorCounter < 5", function (err, results) {
             if (err) {
                 console.warn("Failed to query webhooks");
                 console.warn(err);
@@ -87,16 +95,26 @@ module.exports = function (pool) {
         console.log("Running Webhooks for a stack of " + stack.length);
 
         clearInterval(intervalId);
-
         let currentData = data.shift();
 
-        intervalId = setInterval(function () {
-            let currentTarget = stack.shift();
-            if (currentTarget) {
-                console.log(currentTarget);
-                doPost(currentData, currentTarget.url, currentTarget.format)
-            }
-        }, 10);
+        pool.getConnection(function (err,connection) {
+            setTimeout(function () {
+                console.log("Releasing Webhook SQL connection");
+                connection.release();
+            }, stack.length * 1000);
+
+            intervalId = setInterval(function () {
+                let currentTarget = stack.shift();
+                if (currentTarget) {
+                    console.log(currentTarget);
+                    doPost(currentData, currentTarget.url, currentTarget.format,connection, currentTarget.id)
+                }
+            }, 10);
+
+
+
+        })
+
     };
 
     return {
