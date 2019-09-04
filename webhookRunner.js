@@ -1,42 +1,64 @@
 const request = require("request");
+const moment = require("moment");
 
 function doPost(data, url, format) {
     console.log("POST (" + format + ") " + url);
 
     let webUrl = "https://hypixel.inventivetalent.org/skyblock-magma-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
-    let timestampText = new Date(data.time).toUTCString();
+    // let timestampText = new Date(data.time).toUTCString();
 
     let postData = data;
     if (format === "discord") {
         postData = {
-            content: "",
             embeds: [
                 {
-                    title: "Skyblock Magma Boss will spawn soon!",
-                    description: "The Hypixel Skyblock Magma Boss should spawn in less than 10 minutes!",
+                    title: "Skyblock **Magma Boss** will spawn soon!",
+                    description: "The Hypixel Skyblock **Magma Boss** should spawn in less than 10 minutes!\n",
                     url: webUrl,
-                    timestamp: timestampText,
+                    // timestamp: data.time,
                     color: 16611336,
+                    fields: [
+                        {
+                            name: "⏳",
+                            value: "[**Open The Timer**](" + webUrl + ")",
+                            inline: true
+                        },
+                        {
+                            name: "⌚",
+                            value: moment(data.estimate).format("HH:mm z"),
+                            inline: true
+                        }
+                    ],
                     author: {
                         name: "Hypixel Skyblock Boss Timer",
                         url: webUrl,
-                        icon_url: "https://cdn.discordapp.com/attachments/618504408094867456/618746244164222977/Magma_Cube_48px.png"
+                        icon_url: "https://i.imgur.com/ABtIkSp.png"
                     },
                     thumbnail: {
-                        url: "https://cdn.discordapp.com/attachments/618504408094867456/618746223637037057/Magma_Cube_256.png"
+                        url: "https://i.imgur.com/4lPcwlJ.png"
                     },
                     footer: {
-                        text: "hypixel.inventivetalent.org"
+                        text: "hypixel.inventivetalent.org",
+                        icon_url: "https://i.imgur.com/ABtIkSp.png"
                     }
                 }
             ]
         }
     }
 
+    console.log(JSON.stringify(postData));
+
     request({
         method: "POST",
         url: url,
         json: postData
+    }, function (err, response, body) {
+        if (err) {
+            console.warn(err);
+            return;
+        }
+        console.log(response.statusCode);
+        console.log(body);
     });
 }
 
@@ -50,8 +72,9 @@ module.exports = function (pool) {
                 console.warn(err);
                 return;
             }
+            console.log(results);
 
-            stack.push(results);
+            stack = stack.concat(results);
             cb();
         })
     };
@@ -70,6 +93,7 @@ module.exports = function (pool) {
         intervalId = setInterval(function () {
             let currentTarget = stack.shift();
             if (currentTarget) {
+                console.log(currentTarget);
                 doPost(currentData, currentTarget.url, currentTarget.format)
             }
         }, 10);
