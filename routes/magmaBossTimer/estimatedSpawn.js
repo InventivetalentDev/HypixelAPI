@@ -3,6 +3,8 @@ const fs = require("fs");
 const OneSignal = require("onesignal-node");
 const crypto = require("crypto");
 
+const PRIORITIZE_WAVES_THRESHOLD = 70;
+
 module.exports = function (vars, pool) {
 
     const OneSignalClient = new OneSignal.Client({
@@ -109,7 +111,7 @@ module.exports = function (vars, pool) {
 
                     estimateSource = "blaze";
 
-                    if (eventConfirmations["blaze"] > 100) {
+                    if (eventConfirmations["blaze"] > PRIORITIZE_WAVES_THRESHOLD) {
                         prioritizeWaves = true;
                     }
 
@@ -124,7 +126,7 @@ module.exports = function (vars, pool) {
 
                     estimateSource = "magma";
 
-                    if (eventConfirmations["magma"] > 100) {
+                    if (eventConfirmations["magma"] > PRIORITIZE_WAVES_THRESHOLD) {
                         prioritizeWaves = true;
                     }
 
