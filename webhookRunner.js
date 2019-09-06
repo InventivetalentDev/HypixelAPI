@@ -4,11 +4,12 @@ const moment = require("moment");
 function doPost(data, url, format, connection, targetId) {
     console.log("POST (" + format + ") " + url);
 
-    let webUrl = "https://hypixel.inventivetalent.org/skyblock-magma-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
     // let timestampText = new Date(data.time).toUTCString();
 
     let postData = data;
     if (format === "discord") {
+        let webUrl = "https://hypixel.inventivetalent.org/skyblock-magma-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
+
         postData = {
             embeds: [
                 {
