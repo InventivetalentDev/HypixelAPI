@@ -11,6 +11,7 @@ function doPost(data, url, format, connection, targetId) {
         let webUrl = "https://hypixel.inventivetalent.org/skyblock-magma-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
 
         postData = {
+            content: "@here",
             embeds: [
                 {
                     title: "Skyblock **Magma Boss** will spawn soon!",
