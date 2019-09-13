@@ -1,6 +1,6 @@
 module.exports = function (vars, pool) {
     return function (req, res) {
-        pool.query("SELECT type,time_rounded,confirmations FROM skyblock_magma_timer_events WHERE confirmations > 10 AND time_rounded > NOW() - INTERVAL 4 HOUR ORDER BY time_rounded ASC", function (err, results) {
+        pool.query("SELECT type,time_rounded,time_average,time_latest,confirmations FROM skyblock_magma_timer_events WHERE confirmations > 10 AND time_rounded > NOW() - INTERVAL 4 HOUR ORDER BY time_rounded ASC", function (err, results) {
             if (err) {
                 console.warn(err);
                 res.json({
@@ -27,13 +27,19 @@ module.exports = function (vars, pool) {
                 //     events[result.type].push([t - 1.8e+6, 0]);
                 // }
 
-                events[result.type].push([t, result.confirmations]);
+                events[result.type].push([result.time_average.getTime()-10, 0]);
 
-                for (let k in events) {
-                    if (k !== result.type) {
-                        events[k].push([t, 0]);
-                    }
-                }
+                events[result.type].push([result.time_average.getTime(), result.confirmations]);
+                events[result.type].push([t, result.confirmations]);
+                events[result.type].push([result.time_latest.getTime(), result.confirmations]);
+
+                events[result.type].push([result.time_latest.getTime()+10, 0]);
+                //
+                // for (let k in events) {
+                //     if (k !== result.type) {
+                //         events[k].push([t, 0]);
+                //     }
+                // }
 
                 // if (result.type === "death" && result.confirmations>100) {
                 //     events[result.type].push([t + 1.8e+6, 0]);
@@ -48,7 +54,8 @@ module.exports = function (vars, pool) {
                 });
                 mapped.push({
                     name: k,
-                    data: arr
+                    data: arr,
+                    step: true
                 })
             }
 
