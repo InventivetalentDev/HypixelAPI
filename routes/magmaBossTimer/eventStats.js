@@ -44,7 +44,7 @@ module.exports = function (vars, pool) {
             for (let k in events) {
                 let arr = events[k];
                 arr.sort(function (a,b) {
-                    return a[0]-b[1];
+                    return a[0]-b[0];
                 });
                 mapped.push({
                     name: k,
