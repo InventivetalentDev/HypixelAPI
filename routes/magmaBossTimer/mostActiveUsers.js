@@ -47,7 +47,7 @@ module.exports = function (vars, pool) {
                 };
             }
 
-            res.set("Cache-Control", "public, max-age=60000");
+            res.set("Cache-Control", "public, max-age=10800");
             res.json({
                 success: true,
                 msg: "",
