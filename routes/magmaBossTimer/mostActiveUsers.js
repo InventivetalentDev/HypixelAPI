@@ -20,7 +20,7 @@ module.exports = function (vars, pool) {
                 if (count < 5) continue;
 
                 if (count > max) max = count;
-                if (count < max - 60) continue;
+                if (count < max - 100) continue;
 
                 // users[name] = count;
 
