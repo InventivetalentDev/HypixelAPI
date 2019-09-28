@@ -46,52 +46,54 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
     //     console.log("SQL ping success: " + duration);
 
 
-        // connection.connect(function (err) {
-        //     if (err) throw err;
-        //
-        //     console.log("MySQL connected");
-        // });
+    // connection.connect(function (err) {
+    //     if (err) throw err;
+    //
+    //     console.log("MySQL connected");
+    // });
 
 
-        const port = 3040;
+    const port = 3040;
 
 
-        app.get("/api", (req, res) => {
-            res.json({
-                success: true,
-                msg: "Hello World!"
-            });
+    app.get("/api", (req, res) => {
+        res.json({
+            success: true,
+            msg: "Hello World!"
         });
+    });
+
+    app.get("/api/time", require("./routes/time")(vars, pool));
 
 /// User Proxy
-        app.get("/api/player", require("./routes/user/userProxy")(vars, pool));
+    app.get("/api/player", require("./routes/user/userProxy")(vars, pool));
 
 
 /// Magma Boss Stuff
-        app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/magmaBossTimer/activeUsers")(vars, pool));
-        app.get("/api/skyblock/bosstimer/magma/eventStats", require("./routes/magmaBossTimer/eventStats")(vars, pool));
-        app.get("/api/skyblock/bosstimer/magma/mostActiveUsers", require("./routes/magmaBossTimer/mostActiveUsers")(vars, pool));
+    app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/magmaBossTimer/activeUsers")(vars, pool));
+    app.get("/api/skyblock/bosstimer/magma/eventStats", require("./routes/magmaBossTimer/eventStats")(vars, pool));
+    app.get("/api/skyblock/bosstimer/magma/mostActiveUsers", require("./routes/magmaBossTimer/mostActiveUsers")(vars, pool));
 
-        app.get("/api/skyblock/bosstimer/magma/estimatedSpawn", require("./routes/magmaBossTimer/estimatedSpawn")(vars, pool));
-        app.get("/api/skyblock/bosstimer/magma/userCheck", require("./routes/magmaBossTimer/userCheck")(vars, pool));
-        app.get("/api/skyblock/bosstimer/magma/historyChart", require("./routes/magmaBossTimer/historyChart")(vars, pool));
-        app.post("/api/skyblock/bosstimer/magma/addEvent", require("./routes/magmaBossTimer/addEvent")(vars, pool));
-        app.post("/api/skyblock/bosstimer/magma/ping", require("./routes/magmaBossTimer/ping")(vars, pool));
+    app.get("/api/skyblock/bosstimer/magma/estimatedSpawn", require("./routes/magmaBossTimer/estimatedSpawn")(vars, pool));
+    app.get("/api/skyblock/bosstimer/magma/userCheck", require("./routes/magmaBossTimer/userCheck")(vars, pool));
+    app.get("/api/skyblock/bosstimer/magma/historyChart", require("./routes/magmaBossTimer/historyChart")(vars, pool));
+    app.post("/api/skyblock/bosstimer/magma/addEvent", require("./routes/magmaBossTimer/addEvent")(vars, pool));
+    app.post("/api/skyblock/bosstimer/magma/ping", require("./routes/magmaBossTimer/ping")(vars, pool));
 
-        app.put("/api/webhook/skyblock/bosstimer/add", require("./routes/magmaBossTimer/webhooks/addWebhook")(vars, pool));
-        app.delete("/api/webhook/skyblock/bosstimer/delete", require("./routes/magmaBossTimer/webhooks/deleteWebhook")(vars, pool));
+    app.put("/api/webhook/skyblock/bosstimer/add", require("./routes/magmaBossTimer/webhooks/addWebhook")(vars, pool));
+    app.delete("/api/webhook/skyblock/bosstimer/delete", require("./routes/magmaBossTimer/webhooks/deleteWebhook")(vars, pool));
 
 
-        app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
+    app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
 
     // });
 });
 
 function closeTunnel() {
-    try{
+    try {
         console.log("Attempting to close SSH tunnel");
         tunnelRef.close();
-    }catch (e) {
+    } catch (e) {
         console.warn(e);
     }
 }
@@ -100,7 +102,7 @@ process.on('uncaughtException', function (err) {
     console.log('Caught exception: ');
     console.log(err);
 
-   closeTunnel();
+    closeTunnel();
 
     throw err;
 });
