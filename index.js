@@ -18,7 +18,7 @@ app.use(cors({
 }));
 
 let swStats = require('swagger-stats');
-app.use(swStats.getMiddleware( vars.swagger));
+app.use(swStats.getMiddleware(vars.swagger));
 
 const limiter = rateLimit({
     windowMs: 2 * 60 * 1000, // 2 minutes
@@ -30,54 +30,81 @@ const limiter = rateLimit({
 // app.use(express.static('public'));
 
 const mysql = require("mysql");
-const pool = mysql.createPool(vars.mysql);
 
-const server = tunnel(vars.tunnel, function (err, server) {
+let tunnelRef;
+
+
+const server = tunnel(vars.tunnel, function (err, tnl) {
     if (err) {
         throw err;
     }
     console.log("SSH Tunnel Opened");
+    tunnelRef = tnl;
 
-    // connection.connect(function (err) {
-    //     if (err) throw err;
-    //
-    //     console.log("MySQL connected");
-    // });
-});
-
-const port = 3040;
+    const pool = mysql.createPool(vars.mysql);
+    // pool.ping((err, duration) => {
+    //     console.log("SQL ping success: " + duration);
 
 
-app.get("/api", (req, res) => {
-    res.json({
-        success: true,
-        msg: "Hello World!"
-    });
-});
+        // connection.connect(function (err) {
+        //     if (err) throw err;
+        //
+        //     console.log("MySQL connected");
+        // });
+
+
+        const port = 3040;
+
+
+        app.get("/api", (req, res) => {
+            res.json({
+                success: true,
+                msg: "Hello World!"
+            });
+        });
 
 /// User Proxy
-app.get("/api/player", require("./routes/user/userProxy")(vars, pool));
+        app.get("/api/player", require("./routes/user/userProxy")(vars, pool));
 
 
 /// Magma Boss Stuff
-app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/magmaBossTimer/activeUsers")(vars, pool));
-app.get("/api/skyblock/bosstimer/magma/eventStats", require("./routes/magmaBossTimer/eventStats")(vars, pool));
-app.get("/api/skyblock/bosstimer/magma/mostActiveUsers", require("./routes/magmaBossTimer/mostActiveUsers")(vars, pool));
+        app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/magmaBossTimer/activeUsers")(vars, pool));
+        app.get("/api/skyblock/bosstimer/magma/eventStats", require("./routes/magmaBossTimer/eventStats")(vars, pool));
+        app.get("/api/skyblock/bosstimer/magma/mostActiveUsers", require("./routes/magmaBossTimer/mostActiveUsers")(vars, pool));
 
-app.get("/api/skyblock/bosstimer/magma/estimatedSpawn", require("./routes/magmaBossTimer/estimatedSpawn")(vars, pool));
-app.get("/api/skyblock/bosstimer/magma/userCheck", require("./routes/magmaBossTimer/userCheck")(vars, pool));
-app.get("/api/skyblock/bosstimer/magma/historyChart", require("./routes/magmaBossTimer/historyChart")(vars, pool));
-app.post("/api/skyblock/bosstimer/magma/addEvent", require("./routes/magmaBossTimer/addEvent")(vars, pool));
-app.post("/api/skyblock/bosstimer/magma/ping", require("./routes/magmaBossTimer/ping")(vars, pool));
+        app.get("/api/skyblock/bosstimer/magma/estimatedSpawn", require("./routes/magmaBossTimer/estimatedSpawn")(vars, pool));
+        app.get("/api/skyblock/bosstimer/magma/userCheck", require("./routes/magmaBossTimer/userCheck")(vars, pool));
+        app.get("/api/skyblock/bosstimer/magma/historyChart", require("./routes/magmaBossTimer/historyChart")(vars, pool));
+        app.post("/api/skyblock/bosstimer/magma/addEvent", require("./routes/magmaBossTimer/addEvent")(vars, pool));
+        app.post("/api/skyblock/bosstimer/magma/ping", require("./routes/magmaBossTimer/ping")(vars, pool));
 
-app.put("/api/webhook/skyblock/bosstimer/add", require("./routes/magmaBossTimer/webhooks/addWebhook")(vars, pool));
-app.delete("/api/webhook/skyblock/bosstimer/delete", require("./routes/magmaBossTimer/webhooks/deleteWebhook")(vars, pool));
+        app.put("/api/webhook/skyblock/bosstimer/add", require("./routes/magmaBossTimer/webhooks/addWebhook")(vars, pool));
+        app.delete("/api/webhook/skyblock/bosstimer/delete", require("./routes/magmaBossTimer/webhooks/deleteWebhook")(vars, pool));
 
 
-app.listen(port, () => console.log(`Example app listening on port ${ port }!`));
+        app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
+
+    // });
+});
+
+function closeTunnel() {
+    try{
+        console.log("Attempting to close SSH tunnel");
+        tunnelRef.close();
+    }catch (e) {
+        console.warn(e);
+    }
+}
 
 process.on('uncaughtException', function (err) {
     console.log('Caught exception: ');
     console.log(err);
+
+   closeTunnel();
+
     throw err;
+});
+
+process.on('exit', () => {
+    closeTunnel();
 });
