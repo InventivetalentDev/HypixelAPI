@@ -84,6 +84,13 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
     app.delete("/api/webhook/skyblock/bosstimer/delete", require("./routes/magmaBossTimer/webhooks/deleteWebhook")(vars, pool));
 
 
+// NewYear timer
+    app.get("/api/skyblock/newyear/estimate", require("./routes/newYearTimer/estimate")(vars, pool));
+
+
+// DarkAuction timer
+    app.get("/api/skyblock/darkauction/estimate", require("./routes/darkAuctionTimer/estimate")(vars, pool));
+
     app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
 
     // });
