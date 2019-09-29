@@ -3,7 +3,7 @@ module.exports = function (vars, pool) {
         pool.query("SELECT type,time_rounded,time_average,time_latest,confirmations FROM skyblock_magma_timer_events WHERE confirmations > 10 AND time_rounded > NOW() - INTERVAL 4 HOUR ORDER BY time_rounded ASC", function (err, results) {
             if (err) {
                 console.warn(err);
-                res.json({
+                res.status(500).json({
                     success: false,
                     msg: "sql error"
                 });

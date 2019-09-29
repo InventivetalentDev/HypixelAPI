@@ -25,7 +25,7 @@ module.exports = function (vars, pool) {
             "SELECT type,time FROM skyblock_newyear_events ORDER BY time DESC LIMIT 5", function (err, results) {
                 if (err) {
                     console.warn(err);
-                    res.json({
+                    res.status(500).json({
                         success: false,
                         msg: "sql error"
                     });

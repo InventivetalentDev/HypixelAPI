@@ -6,8 +6,6 @@ const crypto = require("crypto");
 
 module.exports = function (vars, pool) {
 
-    // Current interval seems to be about 5 days and 4 hours
-
     const fiveDaysInMillis = 4.32e+8;
     const fourHoursInMillis = 1.44e+7;
     const twoHoursInMillis = 7.2e+6;
@@ -26,7 +24,7 @@ module.exports = function (vars, pool) {
             "SELECT time FROM skyblock_dark_auction_events ORDER BY time DESC LIMIT 5", function (err, results) {
                 if (err) {
                     console.warn(err);
-                    res.json({
+                    res.status(500).json({
                         success: false,
                         msg: "sql error"
                     });
