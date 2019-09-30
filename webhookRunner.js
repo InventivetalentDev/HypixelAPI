@@ -1,8 +1,8 @@
 const request = require("request");
 const moment = require("moment");
 
-function doPost(data, url, format, connection, targetId) {
-    console.log("POST (" + format + ") " + url);
+function doPost(context, data, url, format, connection, targetId) {
+    console.log("POST (" + context + "/" + format + ") " + url);
 
     // let timestampText = new Date(data.time).toUTCString();
 
@@ -63,10 +63,10 @@ function doPost(data, url, format, connection, targetId) {
         console.log(body);
 
         if (response.statusCode < 200 || response.statusCode > 230) {// error
-            connection.query("UPDATE skyblock_magma_timer_webhooks SET errorCounter = errorCounter+1 WHERE id=?",[targetId],function (err,results) {
+            connection.query("UPDATE skyblock_webhooks SET errorCounter = errorCounter+1 WHERE id=?", [targetId], function (err, results) {
             })
-        }else{// success
-            connection.query("UPDATE skyblock_magma_timer_webhooks SET successCounter = successCounter+1 WHERE id=?",[targetId],function (err,results) {
+        } else {// success
+            connection.query("UPDATE skyblock_webhooks SET successCounter = successCounter+1 WHERE id=?", [targetId], function (err, results) {
             })
         }
     });
@@ -75,8 +75,8 @@ function doPost(data, url, format, connection, targetId) {
 module.exports = function (pool) {
     let stack = [];
 
-    let queryWebhooks = function queryWebhooks(cb) {
-        pool.query("SELECT * FROM skyblock_magma_timer_webhooks WHERE errorCounter < 5", function (err, results) {
+    let queryWebhooks = function queryWebhooks(context, cb) {
+        pool.query("SELECT * FROM skyblock_webhooks WHERE context = ? AND errorCounter < 5", [context], function (err, results) {
             if (err) {
                 console.warn("Failed to query webhooks");
                 console.warn(err);
@@ -99,7 +99,7 @@ module.exports = function (pool) {
         clearInterval(intervalId);
         let currentData = data.shift();
 
-        pool.getConnection(function (err,connection) {
+        pool.getConnection(function (err, connection) {
             setTimeout(function () {
                 console.log("Releasing Webhook SQL connection");
                 connection.release();
@@ -109,10 +109,9 @@ module.exports = function (pool) {
                 let currentTarget = stack.shift();
                 if (currentTarget) {
                     console.log(currentTarget);
-                    doPost(currentData, currentTarget.url, currentTarget.format,connection, currentTarget.id)
+                    doPost(currentTarget.context, currentData, currentTarget.url, currentTarget.format, connection, currentTarget.id)
                 }
             }, 10);
-
 
 
         })
@@ -122,11 +121,11 @@ module.exports = function (pool) {
     return {
         stack: stack,
         queryWebhooks: queryWebhooks,
-        queryWebhooksAndRun: function (data_) {
+        queryWebhooksAndRun: function (context, data_) {
             if (data_) {
                 data.push(data_);
             }
-            queryWebhooks(function () {
+            queryWebhooks(context, function () {
                 run();
             });
         },

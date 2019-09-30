@@ -68,6 +68,13 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
 /// User Proxy
     app.get("/api/player", require("./routes/user/userProxy")(vars, pool));
 
+/// Webhooks
+    app.put("/api/webhook/add", require("./routes/webhooks/addWebhook")(vars, pool));
+    app.delete("/api/webhook/delete", require("./routes/webhooks/deleteWebhook")(vars, pool));
+
+    // deprecated
+    app.put("/api/webhook/skyblock/bosstimer/add", require("./routes/webhooks/addWebhook")(vars, pool));
+    app.delete("/api/webhook/skyblock/bosstimer/delete", require("./routes/webhooks/deleteWebhook")(vars, pool));
 
 /// Magma Boss Stuff
     app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/magmaBossTimer/activeUsers")(vars, pool));
@@ -79,9 +86,6 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
     app.get("/api/skyblock/bosstimer/magma/historyChart", require("./routes/magmaBossTimer/historyChart")(vars, pool));
     app.post("/api/skyblock/bosstimer/magma/addEvent", require("./routes/magmaBossTimer/addEvent")(vars, pool));
     app.post("/api/skyblock/bosstimer/magma/ping", require("./routes/magmaBossTimer/ping")(vars, pool));
-
-    app.put("/api/webhook/skyblock/bosstimer/add", require("./routes/magmaBossTimer/webhooks/addWebhook")(vars, pool));
-    app.delete("/api/webhook/skyblock/bosstimer/delete", require("./routes/magmaBossTimer/webhooks/deleteWebhook")(vars, pool));
 
 
 // NewYear timer

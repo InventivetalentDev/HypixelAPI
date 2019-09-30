@@ -228,7 +228,7 @@ module.exports = function (vars, pool) {
 
 
                         console.log("Posting webhooks...");
-                        webhookRunner.queryWebhooksAndRun(theData);
+                        webhookRunner.queryWebhooksAndRun("magmaBoss", theData);
                     }
                 } else {
                     if (minutesUntilNextSpawn <= 5 || minutesUntilNextSpawn >= 20) {
