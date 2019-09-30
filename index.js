@@ -91,6 +91,12 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
 // DarkAuction timer
     app.get("/api/skyblock/darkauction/estimate", require("./routes/darkAuctionTimer/estimate")(vars, pool));
 
+// DarkAuction timer
+    app.get("/api/skyblock/broodmother/estimate", require("./routes/broodMotherTimer/estimate")(vars, pool));
+
+// Interest timer
+    app.get("/api/skyblock/bank/interest/estimate", require("./routes/bankInterestTimer/estimate")(vars, pool));
+
     app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
 
     // });
