@@ -76,6 +76,7 @@ module.exports = function (pool) {
     let stack = [];
 
     let queryWebhooks = function queryWebhooks(context, cb) {
+        console.log("Querying webhooks for " + context);
         pool.query("SELECT * FROM skyblock_webhooks WHERE context = ? AND errorCounter < 5", [context], function (err, results) {
             if (err) {
                 console.warn("Failed to query webhooks");
