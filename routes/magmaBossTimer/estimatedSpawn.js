@@ -209,7 +209,7 @@ module.exports = function (vars, pool) {
                 let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
                 if (!latestOneSignalNotification && prioritizeWaves) {
                     if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
-                        console.log("Sending OneSignal push notification...");
+                        console.log("[MagmaBoss] Sending OneSignal push notification...");
 
                         latestOneSignalNotification = new OneSignal.Notification({
                             template_id: "bffa9fcd-c6a8-4922-87a4-3cdad28a7f05"
@@ -221,13 +221,13 @@ module.exports = function (vars, pool) {
                             if (err) {
                                 console.warn("Failed to send OneSignal notification", err);
                             } else {
-                                console.log("OneSignal notification sent!");
+                                console.log("[MagmaBoss] OneSignal notification sent!");
                                 console.log(data);
                             }
                         })
 
 
-                        console.log("Posting webhooks...");
+                        console.log("[MagmaBoss] Posting webhooks...");
                         webhookRunner.queryWebhooksAndRun("magmaBoss", theData);
                     }
                 } else {

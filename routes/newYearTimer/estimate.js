@@ -6,7 +6,17 @@ const crypto = require("crypto");
 
 module.exports = function (vars, pool) {
 
-    // Current interval seems to be about 5 days and 4 hours
+    const OneSignalClient = new OneSignal.Client({
+        userAuthKey: vars.oneSignal.userKey,
+        app: {
+            appAuthKey: vars.oneSignal.restKey,
+            appId: vars.oneSignal.appId
+        }
+    });
+
+    const webhookRunner = require("../../webhookRunner")(pool);
+
+    let latestOneSignalNotification;
 
     const fiveDaysInMillis = 4.32e+8;
     const fourHoursInMillis = 1.44e+7;
@@ -14,6 +24,7 @@ module.exports = function (vars, pool) {
     const fiveMinsInMillis = 300000;
     const thirtySecsInMillis = 30000;
 
+    // Current interval seems to be about 5 days and 4 hours
     const eventInterval = fiveDaysInMillis+fourHoursInMillis;
 
     let lastQueryTime = 0;
@@ -71,35 +82,35 @@ module.exports = function (vars, pool) {
                 cb(null, theData);
 
 
-                // let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
-                // if (!latestOneSignalNotification && prioritizeWaves) {
-                //     if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
-                //         console.log("Sending OneSignal push notification...");
-                //
-                //         latestOneSignalNotification = new OneSignal.Notification({
-                //             template_id: "bffa9fcd-c6a8-4922-87a4-3cdad28a7f05"
-                //         });
-                //         latestOneSignalNotification.postBody["included_segments"] = ["Active Users"];
-                //         latestOneSignalNotification.postBody["excluded_segments"] = ["Banned Users"];
-                //
-                //         OneSignalClient.sendNotification(latestOneSignalNotification, function (err, response, data) {
-                //             if (err) {
-                //                 console.warn("Failed to send OneSignal notification", err);
-                //             } else {
-                //                 console.log("OneSignal notification sent!");
-                //                 console.log(data);
-                //             }
-                //         })
-                //
-                //
-                //         console.log("Posting webhooks...");
-                //         webhookRunner.queryWebhooksAndRun(theData);
-                //     }
-                // } else {
-                //     if (minutesUntilNextSpawn <= 5 || minutesUntilNextSpawn >= 20) {
-                //         latestOneSignalNotification = null;
-                //     }
-                // }
+                let minutesUntilNextEvent = moment.duration(estimate - now).asMinutes();
+                if (!latestOneSignalNotification) {
+                    if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 8) {
+                        console.log("[NewYear] Sending OneSignal push notification...");
+
+                        latestOneSignalNotification = new OneSignal.Notification({
+                            template_id: "30e3e55e-a97b-4d0a-a6a6-aab55c93fe27"
+                        });
+                        latestOneSignalNotification.postBody["included_segments"] = ["Active Users"];
+                        latestOneSignalNotification.postBody["excluded_segments"] = ["Banned Users"];
+
+                        OneSignalClient.sendNotification(latestOneSignalNotification, function (err, response, data) {
+                            if (err) {
+                                console.warn("[NewYear] Failed to send OneSignal notification", err);
+                            } else {
+                                console.log("[NewYear] OneSignal notification sent!");
+                                console.log(data);
+                            }
+                        })
+
+
+                        console.log("[NewYear] Posting webhooks...");
+                        webhookRunner.queryWebhooksAndRun("newYear", theData);
+                    }
+                } else {
+                    if (minutesUntilNextEvent <= 5 || minutesUntilNextEvent >= 20) {
+                        latestOneSignalNotification = null;
+                    }
+                }
             })
     }
 
