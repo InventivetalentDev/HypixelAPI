@@ -1,50 +1,105 @@
 const request = require("request");
 const moment = require("moment");
 
+const IMG_CLOCK = "https://i.imgur.com/4PEZvZY.png";
+const IMG_MAGMA_CUBE = "https://i.imgur.com/4lPcwlJ.png";
+const IMG_CAKE = "https://i.imgur.com/6vhmsmC.png";
+
 function doPost(context, data, url, format, connection, targetId) {
     console.log("POST (" + context + "/" + format + ") " + url);
 
     // let timestampText = new Date(data.time).toUTCString();
 
+    let extraOptions = JSON.parse(data.extraOptions || "{}") || {};
+
     let postData = data;
     if (format === "discord") {
-        let webUrl = "https://hypixel.inventivetalent.org/skyblock-magma-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
+        let messageContent = "@here";
+        if (extraOptions.discord) {
+            if (extraOptions.discord.message) {
+                messageContent = extraOptions.discord.message;
+            }
+        }
 
-        postData = {
-            content: "@here",
-            embeds: [
-                {
-                    title: "Skyblock **Magma Boss** will spawn soon!",
-                    description: "The Hypixel Skyblock **Magma Boss** should spawn in less than 10 minutes!\n",
-                    url: webUrl,
-                    // timestamp: data.time,
-                    color: 16611336,
-                    fields: [
-                        {
-                            name: "⏳",
-                            value: "[**Open The Timer**](" + webUrl + ")",
-                            inline: true
-                        },
-                        {
-                            name: "⌚",
-                            value: moment(data.estimate).format("HH:mm z"),
-                            inline: true
-                        }
-                    ],
-                    author: {
-                        name: "Hypixel Skyblock Boss Timer",
+        if (context === "magmaBoss") {
+            let webUrl = "https://hypixel.inventivetalent.org/skyblock-magma-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
+
+            postData = {
+                content: messageContent,
+                embeds: [
+                    {
+                        title: "Skyblock **Magma Boss** will spawn soon!",
+                        description:  "The Hypixel Skyblock **Magma Boss** should spawn in less than 10 minutes!\n",
                         url: webUrl,
-                        icon_url: "https://i.imgur.com/ABtIkSp.png"
-                    },
-                    thumbnail: {
-                        url: "https://i.imgur.com/4lPcwlJ.png"
-                    },
-                    footer: {
-                        text: "hypixel.inventivetalent.org",
-                        icon_url: "https://i.imgur.com/ABtIkSp.png"
+                        // timestamp: data.time,
+                        color: 16611336,
+                        fields: [
+                            {
+                                name: "⏳",
+                                value: "[**Open The Timer**](" + webUrl + ")",
+                                inline: true
+                            },
+                            {
+                                name: "⌚",
+                                value: moment(data.estimate).format("HH:mm z"),
+                                inline: true
+                            }
+                        ],
+                        author: {
+                            name: "Hypixel Skyblock Timer",
+                            url: webUrl,
+                            icon_url: IMG_CLOCK
+                        },
+                        thumbnail: {
+                            url: IMG_MAGMA_CUBE
+                        },
+                        footer: {
+                            text: "hypixel.inventivetalent.org",
+                            icon_url: IMG_CLOCK
+                        }
                     }
-                }
-            ]
+                ]
+            };
+        }
+        if (context === "newYear") {
+            let webUrl = "https://hypixel.inventivetalent.org/skyblock-newyear-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
+
+            postData = {
+                content: messageContent,
+                embeds: [
+                    {
+                        title: "Skyblock **New Year's** will begin soon!",
+                        description: "The Hypixel Skyblock **New Year's Event** will begin in less than 10 minutes!\n",
+                        url: webUrl,
+                        // timestamp: data.time,
+                        color: 12123133,
+                        fields: [
+                            {
+                                name: "⏳",
+                                value: "[**Open The Timer**](" + webUrl + ")",
+                                inline: true
+                            },
+                            {
+                                name: "⌚",
+                                value: moment(data.estimate).format("HH:mm z"),
+                                inline: true
+                            }
+                        ],
+                        author: {
+                            name: "Hypixel Skyblock Timer",
+                            url: webUrl,
+                            icon_url: IMG_CLOCK
+                        },
+                        thumbnail: {
+                            url: IMG_CAKE
+                        },
+                        footer: {
+                            text: "hypixel.inventivetalent.org",
+                            icon_url: IMG_CLOCK
+                        }
+                    }
+                ]
+            }
         }
     }
 

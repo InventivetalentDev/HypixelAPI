@@ -72,9 +72,6 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
     app.put("/api/webhook/add", require("./routes/webhooks/addWebhook")(vars, pool));
     app.delete("/api/webhook/delete", require("./routes/webhooks/deleteWebhook")(vars, pool));
 
-    // deprecated
-    app.put("/api/webhook/skyblock/bosstimer/add", require("./routes/webhooks/addWebhook")(vars, pool));
-    app.delete("/api/webhook/skyblock/bosstimer/delete", require("./routes/webhooks/deleteWebhook")(vars, pool));
 
 /// Magma Boss Stuff
     app.get("/api/skyblock/bosstimer/magma/activeUsers", require("./routes/magmaBossTimer/activeUsers")(vars, pool));
