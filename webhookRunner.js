@@ -41,7 +41,7 @@ function doPost(context, data, url, format, connection, targetId) {
                             },
                             {
                                 name: "⌚",
-                                value: moment(data.estimate).format("HH:mm z"),
+                                value: moment(data.estimate).utc().format("HH:mm z"),
                                 inline: true
                             }
                         ],
@@ -81,7 +81,7 @@ function doPost(context, data, url, format, connection, targetId) {
                             },
                             {
                                 name: "⌚",
-                                value: moment(data.estimate).format("HH:mm z"),
+                                value: moment(data.estimate).utc().format("HH:mm z"),
                                 inline: true
                             }
                         ],
