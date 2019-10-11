@@ -60,6 +60,10 @@ module.exports = function (vars, pool) {
                     return;
                 }
                 let player = body.player;
+                let stats = player.stats;
+
+                let skyblockStats = stats ? stats.SkyBlock : {profiles: {}};
+
 
                 let formatted = {
                     isValid: true,
@@ -72,6 +76,7 @@ module.exports = function (vars, pool) {
                     networkExp: player.networkExp || 0,
                     userLanguage: player.userLanguage || "ENGLISH",
                     mostRecentGame: player.mostRecentGameType || "NONE",
+                    skyblockProfiles: skyblockStats.profiles,
                     lastUpdate: time,
                     cached: false
                 };
@@ -85,8 +90,10 @@ module.exports = function (vars, pool) {
 
 
                 pool.query(
-                    "INSERT INTO players (lastUpdate, isValid, uuid, name, rank, firstLogin, lastLogin, karma, networkExp, userLanguage, mostRecentGame) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE lastUpdate=?, isValid=?, uuid=?, name=?, rank=?, firstLogin=?, lastLogin=?, karma=?, networkExp=?, userLanguage=?, mostRecentGame=?",
-                    [date, true, formatted.uuid, formatted.name, formatted.rank, firstLoginDate, lastLoginDate, formatted.karma, formatted.networkExp, formatted.userLanguage, formatted.mostRecentGame,/* update */ date, true, formatted.uuid, formatted.name, formatted.rank, firstLoginDate, lastLoginDate, formatted.karma, formatted.networkExp, formatted.userLanguage, formatted.mostRecentGame],
+                    "INSERT INTO players (lastUpdate, isValid, uuid, name, rank, firstLogin, lastLogin, karma, networkExp, userLanguage, mostRecentGame, skyblockProfiles) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE lastUpdate=?, isValid=?, uuid=?, name=?, rank=?, firstLogin=?, lastLogin=?, karma=?, networkExp=?, userLanguage=?, mostRecentGame=?, skyblockProfiles=?",
+                    [
+                        /* insert */ date, true, formatted.uuid, formatted.name, formatted.rank, firstLoginDate, lastLoginDate, formatted.karma, formatted.networkExp, formatted.userLanguage, formatted.mostRecentGame, JSON.stringify(formatted.skyblockProfiles),
+                        /* update */ date, true, formatted.uuid, formatted.name, formatted.rank, firstLoginDate, lastLoginDate, formatted.karma, formatted.networkExp, formatted.userLanguage, formatted.mostRecentGame, JSON.stringify(formatted.skyblockProfiles)],
                     function (err, results) {
                         if (err) {
                             console.log(err);
@@ -157,6 +164,7 @@ module.exports = function (vars, pool) {
                             networkExp: existingUser.networkExp,
                             userLanguage: existingUser.userLanguage,
                             mostRecentGame: existingUser.mostRecentGame,
+                            skyblockProfiles: JSON.parse(existingUser.skyblockProfiles || "{}"),
                             lastUpdate: existingUser.lastUpdate.getTime(),
                             cached: true
                         }
