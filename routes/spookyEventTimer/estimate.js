@@ -6,17 +6,6 @@ const crypto = require("crypto");
 
 module.exports = function (vars, pool) {
 
-    const OneSignalClient = new OneSignal.Client({
-        userAuthKey: vars.oneSignal.userKey,
-        app: {
-            appAuthKey: vars.oneSignal.restKey,
-            appId: vars.oneSignal.appId
-        }
-    });
-
-    const webhookRunner = require("../../webhookRunner")(pool);
-
-    let latestOneSignalNotification;
 
     const fiveDaysInMillis = 4.32e+8;
     const fourHoursInMillis = 1.44e+7;
@@ -30,6 +19,9 @@ module.exports = function (vars, pool) {
     let lastQueryTime = 0;
     let lastQueryResult;
     let lastQueryHash;
+
+    const webhookRunner = require("../../webhookRunner")(pool);
+    let webhookSent = false;
 
     function queryDataFromDb(req, res, cb) {
         pool.query(
@@ -82,35 +74,36 @@ module.exports = function (vars, pool) {
                 cb(null, theData);
 
 
-                // let minutesUntilNextEvent = moment.duration(estimate - now).asMinutes();
-                // if (!latestOneSignalNotification) {
-                //     if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 8) {
-                //         console.log("[NewYear] Sending OneSignal push notification...");
-                //
-                //         latestOneSignalNotification = new OneSignal.Notification({
-                //             template_id: "30e3e55e-a97b-4d0a-a6a6-aab55c93fe27"
-                //         });
-                //         latestOneSignalNotification.postBody["included_segments"] = ["Active Users"];
-                //         latestOneSignalNotification.postBody["excluded_segments"] = ["Banned Users"];
-                //
-                //         OneSignalClient.sendNotification(latestOneSignalNotification, function (err, response, data) {
-                //             if (err) {
-                //                 console.warn("[NewYear] Failed to send OneSignal notification", err);
-                //             } else {
-                //                 console.log("[NewYear] OneSignal notification sent!");
-                //                 console.log(data);
-                //             }
-                //         })
-                //
-                //
-                //         console.log("[NewYear] Posting webhooks...");
-                //         webhookRunner.queryWebhooksAndRun("newYear", theData);
-                //     }
-                // } else {
-                //     if (minutesUntilNextEvent <= 5 || minutesUntilNextEvent >= 20) {
-                //         latestOneSignalNotification = null;
-                //     }
-                // }
+                let minutesUntilNextEvent = moment.duration(estimate - now).asMinutes();
+                if (!webhookSent) {
+                    if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 8) {
+                        // console.log("[NewYear] Sending OneSignal push notification...");
+                        //
+                        // latestOneSignalNotification = new OneSignal.Notification({
+                        //     template_id: "30e3e55e-a97b-4d0a-a6a6-aab55c93fe27"
+                        // });
+                        // latestOneSignalNotification.postBody["included_segments"] = ["Active Users"];
+                        // latestOneSignalNotification.postBody["excluded_segments"] = ["Banned Users"];
+                        //
+                        // OneSignalClient.sendNotification(latestOneSignalNotification, function (err, response, data) {
+                        //     if (err) {
+                        //         console.warn("[NewYear] Failed to send OneSignal notification", err);
+                        //     } else {
+                        //         console.log("[NewYear] OneSignal notification sent!");
+                        //         console.log(data);
+                        //     }
+                        // })
+
+                        webhookSent = true;
+
+                        console.log("[NewYear] Posting webhooks...");
+                        webhookRunner.queryWebhooksAndRun("spookyFestival", theData);
+                    }
+                } else {
+                    if (minutesUntilNextEvent <= 5 || minutesUntilNextEvent >= 20) {
+                        webhookSent = null;
+                    }
+                }
             })
     }
 

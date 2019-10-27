@@ -20,6 +20,9 @@ module.exports = function (vars, pool) {
     let lastQueryResult;
     let lastQueryHash;
 
+    const webhookRunner = require("../../webhookRunner")(pool);
+    let webhookSent = false;
+
     function queryDataFromDb(req, res, cb) {
         pool.query(
             "SELECT time FROM skyblock_bank_interest_events ORDER BY time DESC LIMIT 5", function (err, results) {
@@ -70,35 +73,36 @@ module.exports = function (vars, pool) {
                 cb(null, theData);
 
 
-                // let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
-                // if (!latestOneSignalNotification && prioritizeWaves) {
-                //     if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
-                //         console.log("Sending OneSignal push notification...");
-                //
-                //         latestOneSignalNotification = new OneSignal.Notification({
-                //             template_id: "bffa9fcd-c6a8-4922-87a4-3cdad28a7f05"
-                //         });
-                //         latestOneSignalNotification.postBody["included_segments"] = ["Active Users"];
-                //         latestOneSignalNotification.postBody["excluded_segments"] = ["Banned Users"];
-                //
-                //         OneSignalClient.sendNotification(latestOneSignalNotification, function (err, response, data) {
-                //             if (err) {
-                //                 console.warn("Failed to send OneSignal notification", err);
-                //             } else {
-                //                 console.log("OneSignal notification sent!");
-                //                 console.log(data);
-                //             }
-                //         })
-                //
-                //
-                //         console.log("Posting webhooks...");
-                //         webhookRunner.queryWebhooksAndRun(theData);
-                //     }
-                // } else {
-                //     if (minutesUntilNextSpawn <= 5 || minutesUntilNextSpawn >= 20) {
-                //         latestOneSignalNotification = null;
-                //     }
-                // }
+                let minutesUntilNextEvent = moment.duration(estimate - now).asMinutes();
+                if (!webhookSent) {
+                    if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 8) {
+                        // console.log("[NewYear] Sending OneSignal push notification...");
+                        //
+                        // latestOneSignalNotification = new OneSignal.Notification({
+                        //     template_id: "30e3e55e-a97b-4d0a-a6a6-aab55c93fe27"
+                        // });
+                        // latestOneSignalNotification.postBody["included_segments"] = ["Active Users"];
+                        // latestOneSignalNotification.postBody["excluded_segments"] = ["Banned Users"];
+                        //
+                        // OneSignalClient.sendNotification(latestOneSignalNotification, function (err, response, data) {
+                        //     if (err) {
+                        //         console.warn("[NewYear] Failed to send OneSignal notification", err);
+                        //     } else {
+                        //         console.log("[NewYear] OneSignal notification sent!");
+                        //         console.log(data);
+                        //     }
+                        // })
+
+                        webhookSent = true;
+
+                        console.log("[NewYear] Posting webhooks...");
+                        webhookRunner.queryWebhooksAndRun("bankInterest", theData);
+                    }
+                } else {
+                    if (minutesUntilNextEvent <= 5 || minutesUntilNextEvent >= 20) {
+                        webhookSent = null;
+                    }
+                }
             })
     }
 
