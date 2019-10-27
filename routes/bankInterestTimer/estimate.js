@@ -65,6 +65,7 @@ module.exports = function (vars, pool) {
                 let theData = {
                     success: true,
                     msg: "",
+                    type: "bankInterest",
                     queryTime: now,
                     latest: lastEventTime,
                     estimate: estimate,

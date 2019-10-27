@@ -74,6 +74,7 @@ module.exports = function (vars, pool) {
                 let theData = {
                     success: true,
                     msg: "",
+                    type: "newYear",
                     queryTime: now,
                     latest: lastEventTime,
                     estimate: estimate,

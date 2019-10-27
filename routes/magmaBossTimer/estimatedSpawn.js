@@ -194,6 +194,7 @@ module.exports = function (vars, pool) {
                 let theData = {
                     success: true,
                     msg: "",
+                    type: "magmaBoss",
                     queryTime: now,
                     latest: eventTimes,
                     latestEvent: latestEvent,

@@ -66,6 +66,7 @@ module.exports = function (vars, pool) {
                 let theData = {
                     success: true,
                     msg: "",
+                    type: "spookyFestival",
                     queryTime: now,
                     latest: lastEventTime,
                     estimate: estimate,
