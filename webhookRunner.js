@@ -101,6 +101,86 @@ function doPost(context, data, url, format, connection, targetId) {
                 ]
             }
         }
+        if (context === "darkAuction") {
+            let webUrl = "https://hypixel.inventivetalent.org/skyblock-dark-auction-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
+
+            postData = {
+                content: messageContent,
+                embeds: [
+                    {
+                        title: "Skyblock **Dark Auction** will begin soon!",
+                        description: "The Hypixel Skyblock **Dark Auction** will begin in less than 10 minutes!\n",
+                        url: webUrl,
+                        // timestamp: data.time,
+                        color: 12123133,
+                        fields: [
+                            {
+                                name: "⏳",
+                                value: "[**Open The Timer**](" + webUrl + ")",
+                                inline: true
+                            },
+                            {
+                                name: "⌚",
+                                value: moment(data.estimate).utc().format("HH:mm z"),
+                                inline: true
+                            }
+                        ],
+                        author: {
+                            name: "Hypixel Skyblock Timer",
+                            url: webUrl,
+                            icon_url: IMG_CLOCK
+                        },
+                        thumbnail: {
+                            url: IMG_CAKE
+                        },
+                        footer: {
+                            text: "hypixel.inventivetalent.org",
+                            icon_url: IMG_CLOCK
+                        }
+                    }
+                ]
+            }
+        }
+        if (context === "spookyEvent") {
+            let webUrl = "https://hypixel.inventivetalent.org/skyblock-spooky-festival-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
+
+            postData = {
+                content: messageContent,
+                embeds: [
+                    {
+                        title: "Skyblock **Spooky Festival** will begin soon!",
+                        description: "The Hypixel Skyblock **Spooky Festival** will begin in less than 10 minutes!\n",
+                        url: webUrl,
+                        // timestamp: data.time,
+                        color: 12123133,
+                        fields: [
+                            {
+                                name: "⏳",
+                                value: "[**Open The Timer**](" + webUrl + ")",
+                                inline: true
+                            },
+                            {
+                                name: "⌚",
+                                value: moment(data.estimate).utc().format("HH:mm z"),
+                                inline: true
+                            }
+                        ],
+                        author: {
+                            name: "Hypixel Skyblock Timer",
+                            url: webUrl,
+                            icon_url: IMG_CLOCK
+                        },
+                        thumbnail: {
+                            url: IMG_CAKE
+                        },
+                        footer: {
+                            text: "hypixel.inventivetalent.org",
+                            icon_url: IMG_CLOCK
+                        }
+                    }
+                ]
+            }
+        }
     }
 
     console.log(JSON.stringify(postData));
