@@ -4,6 +4,8 @@ const moment = require("moment");
 const IMG_CLOCK = "https://i.imgur.com/4PEZvZY.png";
 const IMG_MAGMA_CUBE = "https://i.imgur.com/4lPcwlJ.png";
 const IMG_CAKE = "https://i.imgur.com/6vhmsmC.png";
+const IMG_PUMPKIN = "https://i.imgur.com/hNMiWDs.png";
+const IMG_AUCTION = "https://i.imgur.com/Afek3Te.png";
 
 function doPost(context, data, url, format, connection, targetId) {
     console.log("POST (" + context + "/" + format + ") " + url);
@@ -131,7 +133,7 @@ function doPost(context, data, url, format, connection, targetId) {
                             icon_url: IMG_CLOCK
                         },
                         thumbnail: {
-                            url: IMG_CAKE
+                            url: IMG_AUCTION
                         },
                         footer: {
                             text: "hypixel.inventivetalent.org",
@@ -171,7 +173,7 @@ function doPost(context, data, url, format, connection, targetId) {
                             icon_url: IMG_CLOCK
                         },
                         thumbnail: {
-                            url: IMG_CAKE
+                            url: IMG_PUMPKIN
                         },
                         footer: {
                             text: "hypixel.inventivetalent.org",
