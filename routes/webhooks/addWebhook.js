@@ -47,6 +47,11 @@ module.exports = function (vars, pool) {
             context = req.body.context;
         }
 
+        let extraOptions = {};
+        if (req.body.extraOptions && typeof req.body.extraOptions === "object") {
+            extraOptions = JSON.parse(JSON.stringify(req.body.extraOptions));
+        }
+
         function continueSetup() {
             let urlHash = util.createUrlHash(parsedUrl);
 
@@ -57,8 +62,8 @@ module.exports = function (vars, pool) {
             console.log("adding webhook for " + parsedUrl.href);
 
             pool.query(
-                "INSERT INTO skyblock_webhooks (url_hash,url,format,context) VALUES(?,?,?,?)",
-                [urlHash, parsedUrl.href, format, context], function (err, results) {
+                "INSERT INTO skyblock_webhooks (url_hash,url,format,context,extraOptions) VALUES(?,?,?,?,?)",
+                [urlHash, parsedUrl.href, format, context,extraOptions], function (err, results) {
                     if (err) {
                         if (err.code === 'ER_DUP_ENTRY') {
                             res.status(400).json({
@@ -81,7 +86,8 @@ module.exports = function (vars, pool) {
                         success: true,
                         msg: "Webhook created",
                         format: format,
-                        context: context
+                        context: context,
+                        extraOptions: extraOptions
                     });
                 });
         }
