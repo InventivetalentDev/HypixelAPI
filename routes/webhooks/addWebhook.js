@@ -61,9 +61,11 @@ module.exports = function (vars, pool) {
 
             console.log("adding webhook for " + parsedUrl.href);
 
+            let extraOptionsString = JSON.stringify(extraOptions);
+
             pool.query(
                 "INSERT INTO skyblock_webhooks (url_hash,url,format,context,extraOptions) VALUES(?,?,?,?,?)",
-                [urlHash, parsedUrl.href, format, context,extraOptions], function (err, results) {
+                [urlHash, parsedUrl.href, format, context,extraOptionsString], function (err, results) {
                     if (err) {
                         if (err.code === 'ER_DUP_ENTRY') {
                             res.status(400).json({
