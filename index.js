@@ -12,6 +12,7 @@ const bodyParser = require('body-parser');
 const cors = require("cors");
 const app = express();
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 app.use(cors({
     origin: "https://hypixel.inventivetalent.org"
@@ -100,6 +101,9 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
 
 // Interest timer
     app.get("/api/skyblock/bank/interest/estimate", require("./routes/bankInterestTimer/estimate")(vars, pool));
+
+    // Auction House Tracker
+    app.post("/api/skyblock/auction/logItem", require("./routes/auctionHouseTracker/logItem")(vars, pool));
 
     app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
 
