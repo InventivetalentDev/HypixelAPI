@@ -77,7 +77,7 @@ module.exports = function (vars, pool) {
 
                     let uuid = extraAttributes["uuid"];
                     let item = extraAttributes["id"];
-                    let amount = 1;//TODO
+                    let amount = 1;
                     let startingBid = 0;
                     let currentBid = 0;
                     let bids = 0;
@@ -93,6 +93,12 @@ module.exports = function (vars, pool) {
                     let origin = extraAttributes["originTag"] || "UNKNOWN";
                     let anvilUses = extraAttributes["anvil_uses"] || 0;
                     let timestamp = extraAttributes["timestamp"]||"";
+
+                    let name = stripColorCodes(simplifiedNbt["display"]["Name"]);
+                    if (/[0-9]{1,2}x/ig.test(name)) {
+                        let nameSplit = name.split(" ");
+                        amount = parseInt(nameSplit[0].replace("x"));
+                    }
 
                     let lore = simplifiedNbt["display"]["Lore"];
                     for (let j = 0; j < lore.length; j++) {
