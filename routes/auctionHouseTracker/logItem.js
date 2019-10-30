@@ -96,7 +96,14 @@ module.exports = function (vars, pool) {
                     let timestamp = extraAttributes["timestamp"] || "";
                     let displayName = "";
 
+                    if (!simplifiedNbt.hasOwnProperty("display")) {
+                        continue;
+                    }
+
                     let name = stripColorCodes(simplifiedNbt["display"]["Name"]);
+                    if (!name || name.length < 2) {
+                        continue;
+                    }
                     if (/[0-9]{1,2}x/ig.test(name)) {
                         let nameSplit = name.split(" ");
                         amount = parseInt(nameSplit[0].replace("x", ""));
@@ -108,6 +115,9 @@ module.exports = function (vars, pool) {
                     }
 
                     let lore = simplifiedNbt["display"]["Lore"];
+                    if (!lore || lore.length < 2) {
+                        continue;
+                    }
                     for (let j = 0; j < lore.length; j++) {
                         let line = stripColorCodes(lore[j]);
                         if (line.startsWith("Seller: ")) {
