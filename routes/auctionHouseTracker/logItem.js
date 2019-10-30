@@ -20,6 +20,8 @@ module.exports = function (vars, pool) {
             return;
         }
 
+        let category = req.body.category || "UNKNOWN";
+
         // console.log(JSON.stringify(req.headers));
 
         let cfIp = req.header("Cf-Connecting-Ip");
@@ -199,6 +201,7 @@ module.exports = function (vars, pool) {
                         uuid,
                         item,
                         amount,
+                        category,
                         tier,
                         startingBid,
                         currentBid,
@@ -222,7 +225,7 @@ module.exports = function (vars, pool) {
                 }
 
                 connection.query(
-                    "INSERT INTO skyblock_auction_items (uuid,item,amount,tier,starting_bid,current_bid,bids,bidder,end_time,report_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str,display_name) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder)",
+                    "INSERT INTO skyblock_auction_items (uuid,item,amount,category,tier,starting_bid,current_bid,bids,bidder,end_time,report_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str,display_name) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder)",
                     [inserts], function (err, results) {
                         if (err) {
                             console.warn(err);
