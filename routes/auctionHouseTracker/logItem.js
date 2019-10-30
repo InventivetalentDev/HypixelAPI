@@ -94,11 +94,15 @@ module.exports = function (vars, pool) {
                     let origin = extraAttributes["originTag"] || "UNKNOWN";
                     let anvilUses = extraAttributes["anvil_uses"] || 0;
                     let timestamp = extraAttributes["timestamp"] || "";
+                    let displayName = "";
 
                     let name = stripColorCodes(simplifiedNbt["display"]["Name"]);
                     if (/[0-9]{1,2}x/ig.test(name)) {
                         let nameSplit = name.split(" ");
                         amount = parseInt(nameSplit[0].replace("x", ""));
+
+                        nameSplit.shift();
+                        displayName = nameSplit.join(" ");
                     }
 
                     let lore = simplifiedNbt["display"]["Lore"];
@@ -198,14 +202,15 @@ module.exports = function (vars, pool) {
                         hotPotatoBonus,
                         origin,
                         anvilUses,
-                        timestamp
+                        timestamp,
+                        displayName
                     ];
                     console.log(insert);
                     inserts.push(insert);
                 }
 
                 connection.query(
-                    "INSERT INTO skyblock_auction_items (uuid,item,amount,tier,starting_bid,current_bid,bids,bidder,end_time,report_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder)",
+                    "INSERT INTO skyblock_auction_items (uuid,item,amount,tier,starting_bid,current_bid,bids,bidder,end_time,report_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str,display_name) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder)",
                     [inserts], function (err, results) {
                         if (err) {
                             console.warn(err);
