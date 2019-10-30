@@ -103,6 +103,8 @@ module.exports = function (vars, pool) {
 
                         nameSplit.shift();
                         displayName = nameSplit.join(" ");
+                    } else {
+                        displayName = name;
                     }
 
                     let lore = simplifiedNbt["display"]["Lore"];
