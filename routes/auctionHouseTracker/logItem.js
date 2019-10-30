@@ -77,8 +77,8 @@ module.exports = function (vars, pool) {
 
                     let extraAttributes = simplifiedNbt["ExtraAttributes"];
 
-                    let uuid = extraAttributes["uuid"];
                     let item = extraAttributes["id"];
+                    let uuid = extraAttributes["uuid"] || item;
                     let amount = 1;
                     let tier = "DEFAULT";
                     let startingBid = 0;
