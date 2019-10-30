@@ -12,7 +12,7 @@ module.exports = function (vars, pool) {
 
         res.set("Cache-Control", "public, max-age=20");
 
-        if (!req.body.nbtJson) {
+        if (!req.body.nbtJson || typeof req.body.nbtJson !== "object") {
             res.status(400).json({
                 success: false,
                 msg: "Missing nbt"
@@ -93,12 +93,12 @@ module.exports = function (vars, pool) {
                     let hotPotatoBonus = extraAttributes["hotPotatoBonus"] || "";
                     let origin = extraAttributes["originTag"] || "UNKNOWN";
                     let anvilUses = extraAttributes["anvil_uses"] || 0;
-                    let timestamp = extraAttributes["timestamp"]||"";
+                    let timestamp = extraAttributes["timestamp"] || "";
 
                     let name = stripColorCodes(simplifiedNbt["display"]["Name"]);
                     if (/[0-9]{1,2}x/ig.test(name)) {
                         let nameSplit = name.split(" ");
-                        amount = parseInt(nameSplit[0].replace("x",""));
+                        amount = parseInt(nameSplit[0].replace("x", ""));
                     }
 
                     let lore = simplifiedNbt["display"]["Lore"];
@@ -163,11 +163,17 @@ module.exports = function (vars, pool) {
                             endTime = new Date(mom.valueOf());
                         }
 
-                        if (line.startsWith("--------------")) {// separator, tier line should be one above
+                        if (line.startsWith("------------")) {// separator, tier line should be one above
+                            console.log(line);
                             let tierLine = stripColorCodes(lore[j - 1]);
+                            console.log(tierLine);
                             if (tierLine && tierLine.length > 2) {
-                                let split = tierLine.split[" "];
-                                tier = split[0];
+                                if (tierLine.indexOf(" ") > 0) {
+                                    let tierSplit = tierLine.split(" ");
+                                    tier = tierSplit[0];
+                                } else {
+                                    tier = tierLine;
+                                }
                             }
                         }
 
