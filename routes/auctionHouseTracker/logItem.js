@@ -78,6 +78,7 @@ module.exports = function (vars, pool) {
                     let uuid = extraAttributes["uuid"];
                     let item = extraAttributes["id"];
                     let amount = 1;
+                    let tier = "DEFAULT";
                     let startingBid = 0;
                     let currentBid = 0;
                     let bids = 0;
@@ -97,7 +98,7 @@ module.exports = function (vars, pool) {
                     let name = stripColorCodes(simplifiedNbt["display"]["Name"]);
                     if (/[0-9]{1,2}x/ig.test(name)) {
                         let nameSplit = name.split(" ");
-                        amount = parseInt(nameSplit[0].replace("x"));
+                        amount = parseInt(nameSplit[0].replace("x",""));
                     }
 
                     let lore = simplifiedNbt["display"]["Lore"];
@@ -161,12 +162,22 @@ module.exports = function (vars, pool) {
                             });
                             endTime = new Date(mom.valueOf());
                         }
+
+                        if (line.startsWith("--------------")) {// separator, tier line should be one above
+                            let tierLine = stripColorCodes(lore[j - 1]);
+                            if (tierLine && tierLine.length > 2) {
+                                let split = tierLine.split[" "];
+                                tier = split[0];
+                            }
+                        }
+
                     }
 
                     let insert = [
                         uuid,
                         item,
                         amount,
+                        tier,
                         startingBid,
                         currentBid,
                         bids,
@@ -188,7 +199,7 @@ module.exports = function (vars, pool) {
                 }
 
                 connection.query(
-                    "INSERT INTO skyblock_auction_items (uuid,item,amount,starting_bid,current_bid,bids,bidder,end_time,report_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder)",
+                    "INSERT INTO skyblock_auction_items (uuid,item,amount,tier,starting_bid,current_bid,bids,bidder,end_time,report_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder)",
                     [inserts], function (err, results) {
                         if (err) {
                             console.warn(err);
