@@ -69,7 +69,7 @@ module.exports = function (vars, pool) {
                     let originalNbt = req.body.nbtJson[i];
                     let simplifiedNbt = {};
 
-                    if (!originalNbt.hasOwnProperty("tagMap")) {
+                    if (!originalNbt.hasOwnProperty("tagMap") && !originalNbt.hasOwnProperty("field_74784_a")) {
                         console.warn("Missing tagMap in root");
                         continue;
                     }
@@ -240,6 +240,14 @@ module.exports = function (vars, pool) {
                     ];
                     console.log(insert);
                     inserts.push(insert);
+                }
+
+                if (inserts.length === 0) {
+                    res.json({
+                        success: true,
+                        msg: "Nothing to add"
+                    });
+                    return;
                 }
 
                 connection.query(
