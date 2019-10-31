@@ -130,9 +130,15 @@ module.exports = function (vars, pool) {
                         let line = stripColorCodes(lore[j]);
                         if (line.startsWith("Seller: ")) {
                             seller = line.substring("Seller: ".length).trim();
+                            if (seller.startsWith("Refreshing")) {
+                                seller = "";
+                            }
                         }
                         if (line.startsWith("Bidder: ")) {
                             bidder = line.substring("Bidder: ".length).trim();
+                            if (bidder.startsWith("Refreshing")) {
+                                bidder = "";
+                            }
                         }
                         if (line.startsWith("Bids: ")) {
                             bids = parseInt(line.substring("Bids: ".length).replace("bids", "").replace(/[, ]+/g, "").trim());
