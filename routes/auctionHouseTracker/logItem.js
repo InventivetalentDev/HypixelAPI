@@ -85,6 +85,7 @@ module.exports = function (vars, pool) {
                     let amount = 1;
                     let tier = "DEFAULT";
                     let startingBid = 0;
+                    let firstBid = 0;
                     let currentBid = 0;
                     let bids = 0;
                     let bidder = "";
@@ -147,7 +148,7 @@ module.exports = function (vars, pool) {
                             bids = parseInt(line.substring("Bids: ".length).replace("bids", "").replace(/[, ]+/g, "").trim());
                         }
                         if (line.startsWith("Top bid: ")) {
-                            currentBid = parseInt(line.substring("Top bid: ".length).replace("coins", "").replace(/[, ]+/g, "").trim())
+                            firstBid = currentBid = parseInt(line.substring("Top bid: ".length).replace("coins", "").replace(/[, ]+/g, "").trim())
                         }
                         if (line.startsWith("Starting bid: ")) {
                             startingBid = parseInt(line.substring("Starting bid: ".length).replace("coins", "").replace(/[, ]+/g, "").trim())
@@ -217,6 +218,7 @@ module.exports = function (vars, pool) {
                         category,
                         tier,
                         startingBid,
+                        firstBid,
                         currentBid,
                         bids,
                         bidder,
@@ -252,7 +254,7 @@ module.exports = function (vars, pool) {
                 }
 
                 connection.query(
-                    "INSERT INTO skyblock_auction_items (uuid,item,amount,category,tier,starting_bid,current_bid,bids,bidder,end_time,report_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str,display_name,potion,potion_level,potion_type,potion_splash,potion_extended,potion_enhanced) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder)",
+                    "INSERT INTO skyblock_auction_items (uuid,item,amount,category,tier,starting_bid,first_bid,current_bid,bids,bidder,end_time,report_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str,display_name,potion,potion_level,potion_type,potion_splash,potion_extended,potion_enhanced) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder)",
                     [inserts], function (err, results) {
                         if (err) {
                             console.warn(err);
