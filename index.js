@@ -105,6 +105,7 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
     // Auction House Tracker
     app.post("/api/skyblock/auction/logItem", require("./routes/auctionHouseTracker/logItem")(vars, pool));
     app.get("/api/skyblock/auction/items", require("./routes/auctionHouseTracker/itemList")(vars, pool));
+    app.get("/api/skyblock/auction/priceTimeline/:item", require("./routes/auctionHouseTracker/priceTimeline")(vars, pool));
 
     app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
 
