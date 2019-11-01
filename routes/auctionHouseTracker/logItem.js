@@ -76,6 +76,9 @@ module.exports = function (vars, pool) {
                     simplifiedNbt = nbt.simplifyNbtMap(originalNbt);
 
                     let extraAttributes = simplifiedNbt["ExtraAttributes"];
+                    if (!extraAttributes) {
+                        continue;
+                    }
 
                     let item = extraAttributes["id"];
                     let uuid = extraAttributes["uuid"] || item;
@@ -194,9 +197,7 @@ module.exports = function (vars, pool) {
                         }
 
                         if (line.startsWith("------------")) {// separator, tier line should be one above
-                            console.log(line);
                             let tierLine = stripColorCodes(lore[j - 1]);
-                            console.log(tierLine);
                             if (tierLine && tierLine.length > 2) {
                                 if (tierLine.indexOf(" ") > 0) {
                                     let tierSplit = tierLine.split(" ");
@@ -238,7 +239,7 @@ module.exports = function (vars, pool) {
                         potionExtended,
                         potionEnhanced
                     ];
-                    console.log(insert);
+                    // console.log(insert);
                     inserts.push(insert);
                 }
 
