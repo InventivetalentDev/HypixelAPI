@@ -88,7 +88,7 @@ module.exports = function (vars, pool) {
             data.cached = true;
             data.time = now;
             res.set("X-Cached", "true");
-            res.set("Cache-Control", "public, max-age=120");
+            res.set("Cache-Control", "public, max-age=1000");
             res.set("ETag", "\"" + lastQueryHash + "\"");
             res.json(data);
         }
