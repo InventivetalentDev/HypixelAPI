@@ -84,6 +84,7 @@ module.exports = function (vars, pool) {
 
 
                 let minutesUntilNextEvent = moment.duration(estimate - now).asMinutes();
+                console.log("[NewYear] Minutes until event: " + minutesUntilNextEvent);
                 if (!latestOneSignalNotification) {
                     if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 8) {
                         console.log("[NewYear] Sending OneSignal push notification...");

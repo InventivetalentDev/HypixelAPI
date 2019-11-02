@@ -208,6 +208,7 @@ module.exports = function (vars, pool) {
 
 
                 let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
+                console.log("[MagmaBoss] Minutes until event: " + minutesUntilNextEvent);
                 if (!latestOneSignalNotification && prioritizeWaves) {
                     if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
                         console.log("[MagmaBoss] Sending OneSignal push notification...");

@@ -74,6 +74,7 @@ module.exports = function (vars, pool) {
 
 
                 let minutesUntilNextEvent = moment.duration(estimate - now).asMinutes();
+                console.log("[DarkAuction] Minutes until event: " + minutesUntilNextEvent);
                 if (!webhookSent) {
                     if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 8) {
                         // console.log("[NewYear] Sending OneSignal push notification...");
@@ -95,7 +96,7 @@ module.exports = function (vars, pool) {
 
                         webhookSent = true;
 
-                        console.log("[NewYear] Posting webhooks...");
+                        console.log("[DarkAuction] Posting webhooks...");
                         webhookRunner.queryWebhooksAndRun("darkAuction", theData);
                     }
                 } else {
