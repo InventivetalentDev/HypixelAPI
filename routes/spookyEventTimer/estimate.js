@@ -77,7 +77,7 @@ module.exports = function (vars, pool) {
                 let minutesUntilNextEvent = moment.duration(estimate - now).asMinutes();
                 console.log("[SpookyFestival] Minutes until event: " + minutesUntilNextEvent);
                 if (!webhookSent) {
-                    if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 8) {
+                    if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 6) {
                         // console.log("[NewYear] Sending OneSignal push notification...");
                         //
                         // latestOneSignalNotification = new OneSignal.Notification({
