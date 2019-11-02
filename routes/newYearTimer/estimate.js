@@ -124,7 +124,7 @@ module.exports = function (vars, pool) {
             data.cached = true;
             data.time = now;
             res.set("X-Cached", "true");
-            res.set("Cache-Control", "public, max-age=120");
+            res.set("Cache-Control", "public, max-age=100");
             res.set("Last-Modified", (new Date(data.latest).toUTCString()));
             res.set("ETag", "\"" + lastQueryHash + "\"");
             res.json(data);
@@ -143,7 +143,7 @@ module.exports = function (vars, pool) {
                     data.cached = false;
                     data.time = now;
                     res.set("X-Cached", "false");
-                    res.set("Cache-Control", "public, max-age=120");
+                    res.set("Cache-Control", "public, max-age=100");
                     res.set("Last-Modified", (new Date(data.latest).toUTCString()));
                     res.set("ETag", "\"" + lastQueryHash + "\"");
                     res.send(data);

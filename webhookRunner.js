@@ -6,6 +6,7 @@ const IMG_MAGMA_CUBE = "https://i.imgur.com/4lPcwlJ.png";
 const IMG_CAKE = "https://i.imgur.com/6vhmsmC.png";
 const IMG_PUMPKIN = "https://i.imgur.com/hNMiWDs.png";
 const IMG_AUCTION = "https://i.imgur.com/Afek3Te.png";
+const IMG_BANK = "https://i.imgur.com/o2xklzj.png";
 
 function doPost(context, data, url, format, connection, targetId) {
     console.log("POST (" + context + "/" + format + ") " + url);
@@ -174,6 +175,46 @@ function doPost(context, data, url, format, connection, targetId) {
                         },
                         thumbnail: {
                             url: IMG_PUMPKIN
+                        },
+                        footer: {
+                            text: "hypixel.inventivetalent.org",
+                            icon_url: IMG_CLOCK
+                        }
+                    }
+                ]
+            }
+        }
+        if (context === "bankInterest") {
+            let webUrl = "https://hypixel.inventivetalent.org/skyblock-bank-interest-timer/?utm_campaign=DiscordWebhook&utm_source=discord_webhook&utm_medium=discord";
+
+            postData = {
+                content: messageContent,
+                embeds: [
+                    {
+                        title: "Skyblock **Bank Interest** will be given soon!",
+                        description: "You should receive your Hypixel Skyblock **Bank Interest** in about 10 minutes!\n",
+                        url: webUrl,
+                        // timestamp: data.time,
+                        color: 12123133,
+                        fields: [
+                            {
+                                name: "⏳",
+                                value: "[**Open The Timer**](" + webUrl + ")",
+                                inline: true
+                            },
+                            {
+                                name: "⌚",
+                                value: moment(data.estimate).utc().format("HH:mm z"),
+                                inline: true
+                            }
+                        ],
+                        author: {
+                            name: "Hypixel Skyblock Timer",
+                            url: webUrl,
+                            icon_url: IMG_CLOCK
+                        },
+                        thumbnail: {
+                            url: IMG_BANK
                         },
                         footer: {
                             text: "hypixel.inventivetalent.org",
