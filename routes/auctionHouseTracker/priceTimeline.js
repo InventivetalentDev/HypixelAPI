@@ -31,7 +31,7 @@ module.exports = function (vars, pool) {
 
         let item = req.params.item.trim();
         pool.query(
-            "SELECT * FROM skyblock_auction_items WHERE item=? ORDER BY end_time ASC", [item], function (err, results) {
+            "SELECT * FROM skyblock_auction_items WHERE item=? ORDER BY update_time ASC", [item], function (err, results) {
                 if (err) {
                     console.warn(err);
                     res.status(500).json({
@@ -56,21 +56,31 @@ module.exports = function (vars, pool) {
                 let lows = [];
                 let highs = [];
 
-                let items = {};
+                let key;
                 for (let i = 0; i < results.length; i++) {
                     let item = results[i];
+                    key = item.item;
                     if (item.starting_bid !== 0) {
-                        lows.push([item.end_time.getTime(), item.starting_bid]);
+                        lows.push([item.report_time.getTime(), item.starting_bid]);
+                    } else if (item.first_bid !== 0) {
+                        lows.push([item.report_time.getTime(), item.first_bid]);
                     }
                     if (item.current_bid !== 0) {
-                        highs.push([item.end_time.getTime(), item.current_bid]);
+                        highs.push([item.update_time.getTime(), item.current_bid]);
                     }
                 }
+
+                let sorter = function(s1, s2) {
+                    return s2[0] - s1[0];
+                };
+                lows.sort(sorter);
+                highs.sort(sorter);
 
                 let theData = {
                     success: true,
                     msg: "",
-                    timelines:{
+                    item: key,
+                    timelines: {
                         lows: lows,
                         highs: highs
                     }
@@ -93,7 +103,7 @@ module.exports = function (vars, pool) {
             res.json(data);
         }
 
-        if (now - lastQueryTime > fiveMinsInMillis || !lastQueryResult) {// Load live data
+        // if (now - lastQueryTime > fiveMinsInMillis || !lastQueryResult) {// Load live data
             queryDataFromDb(req, res, (err, data) => {
                 if (err) {
                     return;
@@ -106,15 +116,15 @@ module.exports = function (vars, pool) {
                     data.cached = false;
                     data.time = now;
                     res.set("X-Cached", "false");
-                    res.set("Cache-Control", "public, max-age=60");
+                    res.set("Cache-Control", "public, max-age=1000");
                     res.set("ETag", "\"" + lastQueryHash + "\"");
                     res.send(data);
                 } else {
                     sendCachedData();
                 }
             });
-        } else { // Send cached version instead
-            sendCachedData();
-        }
+        // } else { // Send cached version instead
+        //     sendCachedData();
+        // }
     }
 };

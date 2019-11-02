@@ -91,6 +91,7 @@ module.exports = function (vars, pool) {
                     let bidder = "";
                     let endTime = 0;
                     let reportTime = date;
+                    let updateTime = date;
                     let seller = "";
                     let modifier = extraAttributes["modifier"] || "";
                     let enchantments = JSON.stringify(extraAttributes["enchantments"]) || "{}";
@@ -224,6 +225,7 @@ module.exports = function (vars, pool) {
                         bidder,
                         endTime,
                         reportTime,
+                        updateTime,
                         seller,
                         modifier,
                         enchantments,
@@ -254,7 +256,7 @@ module.exports = function (vars, pool) {
                 }
 
                 connection.query(
-                    "INSERT INTO skyblock_auction_items (uuid,item,amount,category,tier,starting_bid,first_bid,current_bid,bids,bidder,end_time,report_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str,display_name,potion,potion_level,potion_type,potion_splash,potion_extended,potion_enhanced) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder)",
+                    "INSERT INTO skyblock_auction_items (uuid,item,amount,category,tier,starting_bid,first_bid,current_bid,bids,bidder,end_time,report_time,update_time,seller,modifier,enchantments,runes,hot_potato_count,hot_potato_bonus,origin,anvil_uses,timestamp_str,display_name,potion,potion_level,potion_type,potion_splash,potion_extended,potion_enhanced) VALUES ? ON DUPLICATE KEY UPDATE current_bid=VALUES(current_bid), bids=VALUES(bids), bidder=VALUES(bidder), update_time=VALUES(update_time)",
                     [inserts], function (err, results) {
                         if (err) {
                             console.warn(err);

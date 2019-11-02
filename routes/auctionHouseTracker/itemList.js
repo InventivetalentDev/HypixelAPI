@@ -55,17 +55,19 @@ module.exports = function (vars, pool) {
                             modifier: item.modifier,
                             display: item.display_name,
                             bids: {
-                                low: item.current_bid || item.starting_bid,
-                                high: item.current_bid || item.starting_bid
+                                low: item.starting_bid !== 0 ? item.starting_bid : item.first_bid !== 0 ? item.first_bid : item.current_bid,
+                                high: item.current_bid,
+                                avg: item.current_bid
                             }
                         }
                     } else {
-                        if(item.current_bid!==0) {
+                        if (item.current_bid !== 0) {
                             if (item.current_bid > items[item.item].bids.high) {
                                 items[item.item].bids.high = item.current_bid;
-                            } else if (items[item.item].bids.low===0||item.current_bid < items[item.item].bids.low) {
+                            } else if (items[item.item].bids.low === 0 || item.current_bid < items[item.item].bids.low) {
                                 items[item.item].bids.low = item.current_bid;
                             }
+                            items[item.item].bids.avg = (items[item.item].bids.avg + item.current_bid) / 2;
                         }
                     }
                 }
@@ -88,7 +90,7 @@ module.exports = function (vars, pool) {
             data.cached = true;
             data.time = now;
             res.set("X-Cached", "true");
-            res.set("Cache-Control", "public, max-age=1000");
+            res.set("Cache-Control", "public, max-age=2000");
             res.set("ETag", "\"" + lastQueryHash + "\"");
             res.json(data);
         }
@@ -106,7 +108,7 @@ module.exports = function (vars, pool) {
                     data.cached = false;
                     data.time = now;
                     res.set("X-Cached", "false");
-                    res.set("Cache-Control", "public, max-age=60");
+                    res.set("Cache-Control", "public, max-age=2000");
                     res.set("ETag", "\"" + lastQueryHash + "\"");
                     res.send(data);
                 } else {
