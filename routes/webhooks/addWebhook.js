@@ -55,10 +55,6 @@ module.exports = function (vars, pool) {
         function continueSetup() {
             let urlHash = util.createUrlHash(parsedUrl);
 
-            console.log(parsedUrl.protocol);
-            console.log(parsedUrl.hostname);
-            console.log(parsedUrl.pathname);
-
             console.log("adding webhook for " + parsedUrl.href);
 
             let extraOptionsString = JSON.stringify(extraOptions);

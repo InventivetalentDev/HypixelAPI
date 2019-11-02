@@ -35,9 +35,9 @@ module.exports = function (vars, pool) {
                     cb(err, null);
                     return;
                 }
-                console.log(results);
 
                 if (!results || results.length <= 0) {
+                    console.warn("[Bank Interest] No Data!");
                     res.status(404).json({
                         success: false,
                         msg: "There is no data available!"

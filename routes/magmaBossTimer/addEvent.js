@@ -47,7 +47,6 @@ module.exports = function (vars, pool) {
             });
             return;
         }
-        console.log(cfIp);
         let userAgent = req.header("User-Agent");
         console.log(userAgent);
 
@@ -98,7 +97,6 @@ module.exports = function (vars, pool) {
         let modName = isMod ? userAgent : "";
 
         function continueRequest(captchaRes) {
-            console.log(captchaRes);
             /// 2
             let captchaScore = (captchaRes ? captchaRes.score : 0) || 0;// NOTE: v2 doesn't have this, only v3
 
@@ -126,8 +124,6 @@ module.exports = function (vars, pool) {
                         });
                         return;
                     }
-
-                    console.log(results);
 
 
                     if (results.length > 0) {

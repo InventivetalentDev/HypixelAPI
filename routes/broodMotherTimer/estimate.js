@@ -31,7 +31,6 @@ module.exports = function (vars, pool) {
                     cb(err, null);
                     return;
                 }
-                console.log(results);
 
                 if (!results || results.length <= 0) {
                     res.status(404).json({
