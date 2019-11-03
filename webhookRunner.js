@@ -8,12 +8,13 @@ const IMG_PUMPKIN = "https://i.imgur.com/hNMiWDs.png";
 const IMG_AUCTION = "https://i.imgur.com/Afek3Te.png";
 const IMG_BANK = "https://i.imgur.com/o2xklzj.png";
 
-function doPost(context, data, url, format, connection, targetId) {
+function doPost(context, data, url, format, extraOptions_, connection, targetId) {
     console.log("POST (" + context + "/" + format + ") " + url);
 
     // let timestampText = new Date(data.time).toUTCString();
 
-    let extraOptions = JSON.parse(data.extraOptions || "{}") || {};
+    let extraOptions = JSON.parse(extraOptions_ || "{}") || {};
+    console.log(extraOptions);
 
     let postData = data;
     if (format === "discord") {
@@ -288,7 +289,7 @@ module.exports = function (pool) {
                 let currentTarget = stack.shift();
                 if (currentTarget) {
                     console.log(currentTarget);
-                    doPost(currentTarget.context, currentData, currentTarget.url, currentTarget.format, connection, currentTarget.id)
+                    doPost(currentTarget.context, currentData, currentTarget.url, currentTarget.format, currentTarget.extraOptions, connection, currentTarget.id)
                 }
             }, 10);
 
