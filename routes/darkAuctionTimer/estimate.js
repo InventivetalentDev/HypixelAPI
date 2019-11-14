@@ -19,29 +19,30 @@ module.exports = function (vars, pool) {
     let lastQueryResult;
     let lastQueryHash;
 
+    const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
+
     const webhookRunner = require("../../webhookRunner")(pool);
     let webhookSent = false;
 
-    function queryDataFromDb(req, res, cb) {
+
+    let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.FIVE_MINUTES, function (cb) {
         pool.query(
             "SELECT time FROM skyblock_dark_auction_events ORDER BY time DESC LIMIT 5", function (err, results) {
                 if (err) {
                     console.warn(err);
-                    res.status(500).json({
+                    cb({
                         success: false,
                         msg: "sql error"
-                    });
-                    cb(err, null);
+                    }, null);
                     return;
                 }
 
                 if (!results || results.length <= 0) {
                     console.warn("[Dark Auction] No Data!");
-                    res.status(404).json({
+                    cb({
                         success: false,
                         msg: "There is no data available!"
-                    });
-                    cb(err, null);
+                    }, null);
                     return;
                 }
 
@@ -105,45 +106,9 @@ module.exports = function (vars, pool) {
                     }
                 }
             })
-    }
+    });
 
     return function (req, res) {
-        let now = Date.now();
-
-        function sendCachedData() {
-            let data = lastQueryResult;
-            data.cached = true;
-            data.time = now;
-            res.set("X-Cached", "true");
-            res.set("Cache-Control", "public, max-age=100");
-            res.set("Last-Modified", (new Date(data.latest).toUTCString()));
-            res.set("ETag", "\"" + lastQueryHash + "\"");
-            res.json(data);
-        }
-
-        if (now - lastQueryTime > fiveMinsInMillis || !lastQueryResult) {// Load live data
-            queryDataFromDb(req, res, (err, data) => {
-                if (err) {
-                    return;
-                }
-                if (data) {
-                    lastQueryResult = data;
-                    lastQueryTime = now;
-                    lastQueryHash = crypto.createHash("md5").update("IAmSomeRandomData" + JSON.stringify(lastQueryResult)).digest("hex");
-
-                    data.cached = false;
-                    data.time = now;
-                    res.set("X-Cached", "false");
-                    res.set("Cache-Control", "public, max-age=100");
-                    res.set("Last-Modified", (new Date(data.latest).toUTCString()));
-                    res.set("ETag", "\"" + lastQueryHash + "\"");
-                    res.send(data);
-                } else {
-                    sendCachedData();
-                }
-            });
-        } else { // Send cached version instead
-            sendCachedData();
-        }
+        cachedQuery.respondWithCachedOrQuery(req, res);
     }
 };
