@@ -3,6 +3,7 @@ const fs = require("fs");
 const OneSignal = require("onesignal-node");
 const crypto = require("crypto");
 
+const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
 
 module.exports = function (vars, pool) {
 
@@ -19,7 +20,7 @@ module.exports = function (vars, pool) {
     let lastQueryResult;
     let lastQueryHash;
 
-    const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
+
 
     const webhookRunner = require("../../webhookRunner")(pool);
     let webhookSent = false;
