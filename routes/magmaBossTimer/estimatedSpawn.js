@@ -3,6 +3,8 @@ const fs = require("fs");
 const OneSignal = require("onesignal-node");
 const crypto = require("crypto");
 
+const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
+
 const PRIORITIZE_WAVES_THRESHOLD = 70;
 
 module.exports = function (vars, pool) {
@@ -31,16 +33,15 @@ module.exports = function (vars, pool) {
     let lastQueryResult;
     let lastQueryHash;
 
-    function queryDataFromDb(req, res, cb) {
+    let cachedQuery = new CachedDatabaseQuery(pool,CachedDatabaseQuery.THIRTY_SECONDS,function (cb) {
         pool.query(
             "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 30 AND time_rounded >= NOW() - INTERVAL 4 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
                 if (err) {
                     console.warn(err);
-                    res.status(500).json({
+                    cb({
                         success: false,
                         msg: "sql error"
-                    });
-                    cb(err, null);
+                    }, null);
                     return;
                 }
 
@@ -60,11 +61,10 @@ module.exports = function (vars, pool) {
                 };
 
                 if (!results || results.length <= 0) {
-                    res.status(404).json({
+                    cb({
                         success: false,
                         msg: "There is no data available!"
-                    });
-                    cb(err, null);
+                    }, null);
                     return;
                 }
 
@@ -238,73 +238,11 @@ module.exports = function (vars, pool) {
                     }
                 }
             })
-    }
+    })
+
 
     return function (req, res) {
-        let now = Date.now();
-
-        function sendCachedData() {
-            // fs.readFile("latestMagmaEstimate.json", "utf8", (err, data) => {
-            //     try {
-            //         data = JSON.parse(data);
-            //     } catch (e) {
-            //         console.warn("Failed to parse cached estimate JSON", e);
-            //         lastQueryTime = 0;
-            //         res.status(500).json({
-            //             success: false,
-            //             msg: "Failed to parse cached json data"
-            //         });
-            //         return;
-            //     }
-            //     data.cached = true;
-            //     data.time = now;
-            //     res.json(data);
-            // })
-
-            let data = lastQueryResult;
-            data.cached = true;
-            data.time = now;
-            res.set("X-Cached", "true");
-            res.set("Cache-Control", "public, max-age=90");
-            res.set("Last-Modified", (new Date(data.latestEvent).toUTCString()));
-            res.set("ETag", "\""+lastQueryHash+"\"");
-            res.json(data);
-        }
-
-        if (now - lastQueryTime > thirtySecsInMillis || !lastQueryResult) {// Load live data
-            queryDataFromDb(req, res, (err, data) => {
-                if (err) {
-                    return;
-                }
-                if (data) {
-                    lastQueryResult = data;
-                    lastQueryTime = now;
-                    lastQueryHash = crypto.createHash("md5").update("IAmSomeRandomData" + JSON.stringify(lastQueryResult)).digest("hex");
-
-                    data.cached = false;
-                    data.time = now;
-                    res.set("X-Cached", "false");
-                    res.set("Cache-Control", "public, max-age=120");
-                    res.set("Last-Modified", (new Date(data.latestEvent).toUTCString()));
-                    res.set("ETag", "\""+lastQueryHash+"\"");
-                    res.send(data);
-                    // fs.writeFile("latestMagmaEstimate.json", JSON.stringify(data), "utf8", (err) => {
-                    //     if (err) {
-                    //         console.warn(err);
-                    //     } else {
-                    //         lastQueryTime = now;
-                    //     }
-                    //     data.cached = false;
-                    //     data.time = now;
-                    //     res.send(data);
-                    // })
-                } else {
-                    sendCachedData();
-                }
-            });
-        } else { // Send cached version instead
-            sendCachedData();
-        }
+        cachedQuery.respondWithCachedOrQuery(req, res);
     }
 };
 
