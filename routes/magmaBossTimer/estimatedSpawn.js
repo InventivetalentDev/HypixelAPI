@@ -29,10 +29,6 @@ module.exports = function (vars, pool) {
     const oneMinInMillis = 60000;
     const thirtySecsInMillis = 30000;
 
-    let lastQueryTime = 0;
-    let lastQueryResult;
-    let lastQueryHash;
-
     let cachedQuery = new CachedDatabaseQuery(pool,CachedDatabaseQuery.THIRTY_SECONDS,function (cb) {
         pool.query(
             "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 30 AND time_rounded >= NOW() - INTERVAL 4 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {

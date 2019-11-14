@@ -28,10 +28,6 @@ module.exports = function (vars, pool) {
     // Current interval seems to be about 5 days and 4 hours
     const eventInterval = fiveDaysInMillis+fourHoursInMillis;
 
-    let lastQueryTime = 0;
-    let lastQueryResult;
-    let lastQueryHash;
-
     let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.FIVE_MINUTES,function (cb) {
         pool.query(
             "SELECT type,time FROM skyblock_newyear_events ORDER BY time DESC LIMIT 5", function (err, results) {

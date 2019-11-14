@@ -17,10 +17,6 @@ module.exports = function (vars, pool) {
     // Current interval seems to be about 5 days and 4 hours
     const eventInterval = fiveDaysInMillis+fourHoursInMillis;
 
-    let lastQueryTime = 0;
-    let lastQueryResult;
-    let lastQueryHash;
-
     const webhookRunner = require("../../webhookRunner")(pool);
     let webhookSent = false;
 
