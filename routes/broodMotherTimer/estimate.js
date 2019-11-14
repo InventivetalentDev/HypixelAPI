@@ -3,6 +3,7 @@ const fs = require("fs");
 const OneSignal = require("onesignal-node");
 const crypto = require("crypto");
 
+const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
 
 module.exports = function (vars, pool) {
 
@@ -15,29 +16,22 @@ module.exports = function (vars, pool) {
 
     const eventInterval = oneHourInMillis;
 
-    let lastQueryTime = 0;
-    let lastQueryResult;
-    let lastQueryHash;
-
-    function queryDataFromDb(req, res, cb) {
+    let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.FIVE_MINUTES, function (cb) {
         pool.query(
             "SELECT time FROM skyblock_broodmother_events ORDER BY time DESC LIMIT 5", function (err, results) {
                 if (err) {
                     console.warn(err);
-                    res.status(500).json({
-                        success: false,
+                    cb({
                         msg: "sql error"
-                    });
-                    cb(err, null);
+                    }, null);
                     return;
                 }
 
                 if (!results || results.length <= 0) {
-                    res.status(404).json({
+                    cb({
                         success: false,
                         msg: "There is no data available!"
-                    });
-                    cb(err, null);
+                    }, null);
                     return;
                 }
 
@@ -67,76 +61,11 @@ module.exports = function (vars, pool) {
                 };
                 cb(null, theData);
 
-
-                // let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
-                // if (!latestOneSignalNotification && prioritizeWaves) {
-                //     if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
-                //         console.log("Sending OneSignal push notification...");
-                //
-                //         latestOneSignalNotification = new OneSignal.Notification({
-                //             template_id: "bffa9fcd-c6a8-4922-87a4-3cdad28a7f05"
-                //         });
-                //         latestOneSignalNotification.postBody["included_segments"] = ["Active Users"];
-                //         latestOneSignalNotification.postBody["excluded_segments"] = ["Banned Users"];
-                //
-                //         OneSignalClient.sendNotification(latestOneSignalNotification, function (err, response, data) {
-                //             if (err) {
-                //                 console.warn("Failed to send OneSignal notification", err);
-                //             } else {
-                //                 console.log("OneSignal notification sent!");
-                //                 console.log(data);
-                //             }
-                //         })
-                //
-                //
-                //         console.log("Posting webhooks...");
-                //         webhookRunner.queryWebhooksAndRun(theData);
-                //     }
-                // } else {
-                //     if (minutesUntilNextSpawn <= 5 || minutesUntilNextSpawn >= 20) {
-                //         latestOneSignalNotification = null;
-                //     }
-                // }
             })
-    }
+    });
+
 
     return function (req, res) {
-        let now = Date.now();
-
-        function sendCachedData() {
-            let data = lastQueryResult;
-            data.cached = true;
-            data.time = now;
-            res.set("X-Cached", "true");
-            res.set("Cache-Control", "public, max-age=120");
-            res.set("Last-Modified", (new Date(data.latest).toUTCString()));
-            res.set("ETag", "\"" + lastQueryHash + "\"");
-            res.json(data);
-        }
-
-        if (now - lastQueryTime > fiveMinsInMillis || !lastQueryResult) {// Load live data
-            queryDataFromDb(req, res, (err, data) => {
-                if (err) {
-                    return;
-                }
-                if (data) {
-                    lastQueryResult = data;
-                    lastQueryTime = now;
-                    lastQueryHash = crypto.createHash("md5").update("IAmSomeRandomData" + JSON.stringify(lastQueryResult)).digest("hex");
-
-                    data.cached = false;
-                    data.time = now;
-                    res.set("X-Cached", "false");
-                    res.set("Cache-Control", "public, max-age=60");
-                    res.set("Last-Modified", (new Date(data.latest).toUTCString()));
-                    res.set("ETag", "\"" + lastQueryHash + "\"");
-                    res.send(data);
-                } else {
-                    sendCachedData();
-                }
-            });
-        } else { // Send cached version instead
-            sendCachedData();
-        }
+        cachedQuery.respondWithCachedOrQuery(req, res);
     }
 };
