@@ -68,9 +68,11 @@ module.exports = function (vars, pool) {
                     estimate = lastEventTime + (eventsSinceLast * eventInterval);
                 }
 
+                let endEstimate = estimate+eventDuration;
 
                 let lastEstimateString = moment(lastEstimate).fromNow();
                 let estimateString = moment(estimate).fromNow();
+                let endEstimateString = moment(endEstimate).fromNow();
 
                 let isActive = (now-lastEstimate)<eventDuration;
 
@@ -84,6 +86,8 @@ module.exports = function (vars, pool) {
                     lastEstimateRelative: lastEstimateString,
                     estimate: estimate,
                     estimateRelative: estimateString,
+                    endEstimate: endEstimate,
+                    endEstimateRelative:endEstimateString,
                     active: isActive
                 };
                 cb(null, theData);
