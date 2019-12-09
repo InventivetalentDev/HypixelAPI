@@ -46,15 +46,18 @@ module.exports = function (vars, pool) {
                 let lastEventTime = lastEvent.time.getTime();
                 let lastEventType = lastEvent.type;
 
+                let lastEstimate = now;
                 let estimate = now;
                 if (lastEventTime > 0) {
                     let eventsSinceLast = Math.floor((now - lastEventTime) / eventInterval);
+                    lastEstimate = lastEventTime + (eventsSinceLast * eventInterval);
+
                     eventsSinceLast++;
 
                     estimate = lastEventTime + (eventsSinceLast * eventInterval);
                 }
 
-
+                let lastEstimateString = moment(lastEstimate).fromNow();
                 let estimateString = moment(estimate).fromNow();
 
                 let theData = {
@@ -63,6 +66,8 @@ module.exports = function (vars, pool) {
                     type: "spookyFestival",
                     queryTime: now,
                     latest: lastEventTime,
+                    lastEstimate: lastEstimate,
+                    lastEstimateRelative: lastEstimateString,
                     estimate: estimate,
                     estimateRelative: estimateString
                 };
