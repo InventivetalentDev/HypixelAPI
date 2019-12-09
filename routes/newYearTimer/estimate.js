@@ -24,9 +24,11 @@ module.exports = function (vars, pool) {
     const twoHoursInMillis = 7.2e+6;
     const fiveMinsInMillis = 300000;
     const thirtySecsInMillis = 30000;
+    const oneHourInMillis = 3.6e+6;
 
     // Current interval seems to be about 5 days and 4 hours
     const eventInterval = fiveDaysInMillis+fourHoursInMillis;
+    const eventDuration = oneHourInMillis;
 
     let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.FIVE_MINUTES,function (cb) {
         pool.query(
@@ -70,6 +72,8 @@ module.exports = function (vars, pool) {
                 let lastEstimateString = moment(lastEstimate).fromNow();
                 let estimateString = moment(estimate).fromNow();
 
+                let isActive = (now-lastEstimate)<eventDuration;
+
                 let theData = {
                     success: true,
                     msg: "",
@@ -79,7 +83,8 @@ module.exports = function (vars, pool) {
                     lastEstimate: lastEstimate,
                     lastEstimateRelative: lastEstimateString,
                     estimate: estimate,
-                    estimateRelative: estimateString
+                    estimateRelative: estimateString,
+                    active: isActive
                 };
                 cb(null, theData);
 
