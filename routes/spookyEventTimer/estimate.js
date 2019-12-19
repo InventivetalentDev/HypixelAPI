@@ -59,7 +59,7 @@ module.exports = function (vars, pool) {
                     estimate = lastEventTime + (eventsSinceLast * eventInterval);
                 }
 
-                let endEstimate = estimate+eventDuration;
+                let endEstimate = lastEstimate+eventDuration;
 
                 let lastEstimateString = moment(lastEstimate).fromNow();
                 let estimateString = moment(estimate).fromNow();
