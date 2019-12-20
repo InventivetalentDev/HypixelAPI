@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 app.use(cors({
-    origin: "https://hypixel.inventivetalent.org"
+    origin: "*"
 }));
 
 let swStats = require('swagger-stats');
