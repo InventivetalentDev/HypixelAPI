@@ -32,7 +32,7 @@ module.exports = function (vars, pool) {
 
     let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.FIVE_MINUTES,function (cb) {
         pool.query(
-            "SELECT type,time FROM skyblock_newyear_events ORDER BY time DESC LIMIT 5", function (err, results) {
+            "SELECT type,time,num FROM skyblock_newyear_events ORDER BY time DESC LIMIT 5", function (err, results) {
                 if (err) {
                     console.warn(err);
                     cb({
@@ -56,11 +56,13 @@ module.exports = function (vars, pool) {
                 let lastEvent = results[0];
                 let lastEventTime = lastEvent.time.getTime();
                 let lastEventType = lastEvent.type;
+                let lastEventNum = lastEvent.num;
 
                 let lastEstimate = now;
                 let estimate = now;
+                let eventsSinceLast =0;
                 if (lastEventTime > 0) {
-                    let eventsSinceLast = Math.floor((now - lastEventTime) / eventInterval);
+                    eventsSinceLast= Math.floor((now - lastEventTime) / eventInterval);
                     lastEstimate = lastEventTime + (eventsSinceLast * eventInterval);
 
                     eventsSinceLast++;
@@ -73,6 +75,8 @@ module.exports = function (vars, pool) {
                 let lastEstimateString = moment(lastEstimate).fromNow();
                 let estimateString = moment(estimate).fromNow();
                 let endEstimateString = moment(endEstimate).fromNow();
+
+                let eventNum = lastEventNum+eventsSinceLast;
 
                 let isActive = (now-lastEstimate)<eventDuration;
 
@@ -88,7 +92,8 @@ module.exports = function (vars, pool) {
                     estimateRelative: estimateString,
                     endEstimate: endEstimate,
                     endEstimateRelative:endEstimateString,
-                    active: isActive
+                    active: isActive,
+                    num: eventNum
                 };
                 cb(null, theData);
 
