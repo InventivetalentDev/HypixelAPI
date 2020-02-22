@@ -120,6 +120,7 @@ module.exports = function (vars, pool) {
             function respond() {
                 res.set("Cache-Control", "public, max-age=" + 86400);
                 res.set("Last-Modified", (new Date(memberData.last_save).toUTCString()));
+                res.set("ETag",new Buffer(memberData.last_save+memberData.profile+memberData.user).toString("base64"));
 
                 res.json(memberData);
             }
