@@ -110,6 +110,44 @@ module.exports = function (vars, pool) {
                                 } else {
                                     memberData[key] = parsed;
                                     resolve();
+
+
+                                    if (key === "talisman_bag") {
+                                        let values = [];
+                                        let list = parsed["value"]["i"]["value"]["value"];
+                                        for (let j = 0; j < list.length; j++) {
+                                            try {
+                                                let item = list[j];
+                                                if (!item.hasOwnProperty("tag")) continue;
+                                                let tag = item["tag"]["value"];
+
+                                                let name = tag["display"]["value"]["Name"]["value"];
+                                                let description = tag["display"]["value"]["Lore"]["value"]["value"].join("\r\n");
+                                                let key = tag["ExtraAttributes"]["value"]["id"]["value"];
+                                                let skullId = tag.hasOwnProperty("SkullOwner") ? tag["SkullOwner"]["value"]["Id"]["value"] : "";
+                                                let skullTexture = tag.hasOwnProperty("SkullOwner") ? tag["SkullOwner"]["value"]["Properties"]["value"]["textures"]["value"]["value"][0]["Value"]["value"] : "";
+
+                                                if (tag["ExtraAttributes"]["value"].hasOwnProperty("modifier")) {
+                                                    name=name.replace(new RegExp(tag["ExtraAttributes"]["value"]["modifier"]["value"]+" ","i"),"");
+                                                }
+
+                                                values.push([key, name, description, skullId, skullTexture]);
+                                            } catch (e) {
+                                                console.warn(e)
+                                            }
+                                        }
+                                        pool.query(
+                                            "INSERT IGNORE INTO skyblock_talismans (key_id,name,description,skull_id,skull_texture) VALUES ?",
+                                            [
+                                                values
+                                            ],
+                                            function (err, results) {
+                                                if (err) {
+                                                    console.log(err);
+                                                }
+                                            }
+                                        );
+                                    }
                                 }
                             });
                         }))
@@ -120,7 +158,7 @@ module.exports = function (vars, pool) {
             function respond() {
                 res.set("Cache-Control", "public, max-age=" + 86400);
                 res.set("Last-Modified", (new Date(memberData.last_save).toUTCString()));
-                res.set("ETag",new Buffer(memberData.last_save+memberData.profile+memberData.user).toString("base64"));
+                res.set("ETag", new Buffer(memberData.last_save + memberData.profile + memberData.user).toString("base64"));
 
                 res.json(memberData);
             }
