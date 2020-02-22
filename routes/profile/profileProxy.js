@@ -105,6 +105,7 @@ module.exports = function (vars, pool) {
                             nbt.parse(data, function (err, parsed) {
                                 if (err) {
                                     console.warn(err);
+                                    memberData[key] = "_NBT_PARSE_ERROR_";
                                     resolve();
                                 } else {
                                     memberData[key] = parsed;
