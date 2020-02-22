@@ -68,6 +68,7 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
 
 /// User Proxy
     app.get("/api/player", require("./routes/user/userProxy")(vars, pool));
+    app.get("/api/profile", require("./routes/profile/profileProxy")(vars, pool));
 
 /// Webhooks
     app.put("/api/webhook/add", require("./routes/webhooks/addWebhook")(vars, pool));
