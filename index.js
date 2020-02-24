@@ -98,6 +98,9 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
     // WinterEvent timer
     app.get("/api/skyblock/winter/estimate", require("./routes/winterEventTimer/estimate")(vars, pool));
 
+    // JerryWorkshop timer
+    app.get("/api/skyblock/jerryWorkshop/estimate", require("./routes/jerryWorkshopTimer/estimate")(vars, pool));
+
 // SpookyFestival timer
     app.get("/api/skyblock/spookyFestival/estimate", require("./routes/spookyEventTimer/estimate")(vars, pool));
 
