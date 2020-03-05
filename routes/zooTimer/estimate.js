@@ -19,7 +19,7 @@ module.exports = function (vars, pool) {
     const oneHourInMillis = 3.6e+6;
 
     // Current interval seems to be about 5 days and 4 hours and about 2hrs-20min before newyear's
-    const eventInterval = fiveDaysInMillis+fourHoursInMillis;
+    const eventInterval = (fiveDaysInMillis+fourHoursInMillis)/2;
     const eventDuration = oneHourInMillis;
 
     let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.FIVE_MINUTES,function (cb) {
