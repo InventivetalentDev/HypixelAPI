@@ -134,6 +134,8 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
     // app.get("/api/skyblock/auction/items", require("./routes/auctionHouseTracker/itemList")(vars, pool));
     // app.get("/api/skyblock/auction/priceTimeline/:item", require("./routes/auctionHouseTracker/priceTimeline")(vars, pool));
 
+    app.get("/api/skyblock/calendar", generalLimiter, require("./routes/calendar/index")(vars, pool));
+
     let poolStart =Date.now();
     pool.getConnection(function (err,conn) {
         if(err)throw err;
