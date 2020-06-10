@@ -26,7 +26,7 @@ module.exports = function (vars, pool) {
     let webhookSent = false;
 
 
-    let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.FIVE_MINUTES, function (cb) {
+    let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.ONE_MONTH, function (cb) {
         pool.query(
             "SELECT time FROM skyblock_dark_auction_events ORDER BY time DESC LIMIT 5", function (err, results) {
                 if (err) {

@@ -30,7 +30,7 @@ module.exports = function (vars, pool) {
     const eventInterval = fiveDaysInMillis+fourHoursInMillis;
     const eventDuration = oneHourInMillis;
 
-    let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.FIVE_MINUTES,function (cb) {
+    let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.ONE_MONTH,function (cb) {
         pool.query(
             "SELECT type,time,num FROM skyblock_newyear_events ORDER BY time DESC LIMIT 5", function (err, results) {
                 if (err) {

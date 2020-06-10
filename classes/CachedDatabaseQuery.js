@@ -78,5 +78,6 @@ CachedDatabaseQuery.THIRTY_SECONDS = 1000 * 30;
 CachedDatabaseQuery.ONE_MINUTE = 1000 * 60;
 CachedDatabaseQuery.FIVE_MINUTES = 1000 * 60 * 5;
 CachedDatabaseQuery.TEN_MINUTES = 1000 * 60 * 10;
+CachedDatabaseQuery.ONE_MONTH = 2.628e+9;
 
 module.exports = CachedDatabaseQuery;

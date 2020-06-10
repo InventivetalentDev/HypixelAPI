@@ -22,7 +22,7 @@ module.exports = function (vars, pool) {
     const eventInterval = (fiveDaysInMillis+fourHoursInMillis)/2;
     const eventDuration = oneHourInMillis;
 
-    let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.FIVE_MINUTES,function (cb) {
+    let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.ONE_MONTH,function (cb) {
         pool.query(
             "SELECT type,time FROM skyblock_pet_events ORDER BY time DESC LIMIT 5", function (err, results) {
                 if (err) {
