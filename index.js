@@ -129,6 +129,9 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
 // Interest timer
     app.get("/api/skyblock/bank/interest/estimate", generalLimiter, require("./routes/bankInterestTimer/estimate")(vars, pool));
 
+    // PartyTime timer
+    app.get("/api/skyblock/partyTime/estimate", generalLimiter, require("./routes/partyTimeTimer/estimate")(vars, pool));
+
     // Auction House Tracker
     // app.post("/api/skyblock/auction/logItem", require("./routes/auctionHouseTracker/logItem")(vars, pool));
     // app.get("/api/skyblock/auction/items", require("./routes/auctionHouseTracker/itemList")(vars, pool));
