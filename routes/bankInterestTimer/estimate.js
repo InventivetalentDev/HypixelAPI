@@ -17,6 +17,9 @@ module.exports = function (vars, pool) {
 
     const eventInterval = thirtyOneHoursInMillis;
 
+    let lastQueryTime = 0;
+    let lastQueryResult;
+    let lastQueryHash;
 
     const webhookRunner = require("../../webhookRunner")(pool);
     let webhookSent = false;

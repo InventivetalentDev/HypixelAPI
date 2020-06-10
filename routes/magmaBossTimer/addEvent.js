@@ -162,7 +162,7 @@ module.exports = function (vars, pool) {
 
                         connection.query(
                             "INSERT INTO skyblock_magma_timer_ips (time,type,ipv4,ipv6,minecraftName,server,isMod,modName,captcha_score) VALUES(?,?,?,?,?,?,?,?,?)",
-                            [date, type, ipv4, ipv6, username, server, isMod, modName, captchaScore], function (err, results) {
+                            [date, type, ipv4, ipv6, username, server, isMod ? 1 : 0, modName, captchaScore], function (err, results) {
                                 if (err) {
                                     console.warn(err);
                                     res.status(500).json({
