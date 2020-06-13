@@ -4,6 +4,7 @@ const OneSignal = require("onesignal-node");
 const crypto = require("crypto");
 
 const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
+const SimpleIntervalTimer = require("../../classes/SimpleIntervalTimer");
 
 module.exports = function (vars, pool) {
 
@@ -30,88 +31,10 @@ module.exports = function (vars, pool) {
     const eventInterval = fiveDaysInMillis+fourHoursInMillis;
     const eventDuration = oneHourInMillis;
 
-    let cachedQuery = new CachedDatabaseQuery(pool, CachedDatabaseQuery.ONE_MONTH,function (cb) {
-        pool.query(
-            "SELECT type,time FROM skyblock_winter_events ORDER BY time DESC LIMIT 5", function (err, results) {
-                if (err) {
-                    console.warn(err);
-                    cb({
-                        success: false,
-                        msg: "sql error"
-                    }, null);
-                    return;
-                }
-
-                if (!results || results.length <= 0) {
-                    console.warn("[Winter Event] No Data!");
-                    cb({
-                        success: false,
-                        msg: "There is no data available!"
-                    }, null);
-                    return;
-                }
-
-                let now = Date.now();
-
-                let lastEvent = results[0];
-                let lastEventTime = lastEvent.time.getTime();
-                let lastEventType = lastEvent.type;
-
-                let lastEstimate = now;
-                let estimate = now;
-                if (lastEventTime > 0) {
-                    let eventsSinceLast = Math.floor((now - lastEventTime) / eventInterval);
-                    lastEstimate = lastEventTime + (eventsSinceLast * eventInterval);
-
-                    eventsSinceLast++;
-
-                    estimate = lastEventTime + (eventsSinceLast * eventInterval);
-                }
-
-                let endEstimate = lastEstimate+eventDuration;
-
-                let lastEstimateString = moment(lastEstimate).fromNow();
-                let estimateString = moment(estimate).fromNow();
-                let endEstimateString = moment(endEstimate).fromNow();
-
-                let isActive = (now-lastEstimate)<eventDuration;
-
-                let theData = {
-                    success: true,
-                    msg: "",
-                    type: "winterEvent",
-                    queryTime: now,
-                    latest: lastEventTime,
-                    lastEstimate: lastEstimate,
-                    lastEstimateRelative: lastEstimateString,
-                    estimate: estimate,
-                    estimateRelative: estimateString,
-                    endEstimate: endEstimate,
-                    endEstimateRelative:endEstimateString,
-                    active: isActive
-                };
-                cb(null, theData);
-
-
-                let minutesUntilNextEvent = moment.duration(estimate - now).asMinutes();
-                console.log("[Winter Event] Minutes until event: " + minutesUntilNextEvent);
-                if (!webhookSent) {
-                    if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 6) {
-                        webhookSent = true;
-
-
-                        console.log("[Winter Event] Posting webhooks...");
-                        webhookRunner.queryWebhooksAndRun("winterEvent", theData);
-                    }
-                } else {
-                    if (minutesUntilNextEvent <= 5 || minutesUntilNextEvent >= 20) {
-                        webhookSent = false;
-                    }
-                }
-            })
-    })
+    let timer = new SimpleIntervalTimer("winterEvent", eventInterval, eventDuration, pool, "skyblock_winter_events", 1000 * 60 * 10);
+    timer.run();
 
     return function (req, res) {
-        cachedQuery.respondWithCachedOrQuery(req, res);
+        res.json(timer.data);
     }
 };
