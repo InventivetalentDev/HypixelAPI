@@ -4,6 +4,7 @@ const OneSignal = require("onesignal-node");
 const crypto = require("crypto");
 
 const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
+const SimpleIntervalTimer = require("../../classes/SimpleIntervalTimer");
 
 module.exports = function (vars, pool) {
 
@@ -21,95 +22,10 @@ module.exports = function (vars, pool) {
     const eventInterval = fiveDaysInMillis+fourHoursInMillis;
     const eventDuration = oneHourInMillis*10;
 
-    let dbData = {};
-    function queryDb() {
-        console.log("[Jerry Workshop Event] Querying DB data...");
-        pool.query(
-            "SELECT type,time FROM skyblock_jerry_events ORDER BY time DESC LIMIT 5", function (err, results) {
-                if (err) {
-                    console.warn(err);
-                    return;
-                }
-
-                if (!results || results.length <= 0) {
-                    console.warn("[Jerry Workshop Event] No Data!");
-                    return;
-                }
-
-                dbData = results[0];
-                if(!data.type){
-                    calculateData();
-                }
-            })
-    }
-    queryDb();
-
-    let data = {};
-    function calculateData() {
-        console.log("[Jerry Workshop Event] Calculating latest data...");
-
-        let now = Date.now();
-
-        let lastEvent = dbData;
-        let lastEventTime = lastEvent.time.getTime();
-        let lastEventType = lastEvent.type;
-
-        let lastEstimate = now;
-        let estimate = now;
-        if (lastEventTime > 0) {
-            let eventsSinceLast = Math.floor((now - lastEventTime) / eventInterval);
-            lastEstimate = lastEventTime + (eventsSinceLast * eventInterval);
-
-            eventsSinceLast++;
-
-            estimate = lastEventTime + (eventsSinceLast * eventInterval);
-        }
-
-        let endEstimate = lastEstimate+eventDuration;
-
-        let lastEstimateString = moment(lastEstimate).fromNow();
-        let estimateString = moment(estimate).fromNow();
-        let endEstimateString = moment(endEstimate).fromNow();
-
-        let isActive = (now-lastEstimate)<eventDuration;
-
-        data = {
-            success: true,
-            msg: "",
-            type: "jerryWorkshopEvent",
-            queryTime: now,
-            latest: lastEventTime,
-            lastEstimate: lastEstimate,
-            lastEstimateRelative: lastEstimateString,
-            estimate: estimate,
-            estimateRelative: estimateString,
-            endEstimate: endEstimate,
-            endEstimateRelative:endEstimateString,
-            active: isActive,
-            usingPreload: true
-        };
-
-
-        let minutesUntilNextEvent = moment.duration(estimate - now).asMinutes();
-        console.log("[Jerry Workshop Event] Minutes until event: " + minutesUntilNextEvent);
-        if (!webhookSent) {
-            if (minutesUntilNextEvent <= 10 && minutesUntilNextEvent >= 6) {
-                webhookSent = true;
-
-
-                console.log("[Jerry Workshop Event] Posting webhooks...");
-                webhookRunner.queryWebhooksAndRun("jerryWorkshopEvent", data);
-            }
-        } else {
-            if (minutesUntilNextEvent <= 5 || minutesUntilNextEvent >= 20) {
-                webhookSent = false;
-            }
-        }
-    }
-
-    setInterval(calculateData, 1000 * 60 * 10);
+    let timer = new SimpleIntervalTimer("jerryWorkshopEvent", eventInterval, eventDuration, pool, "skyblock_jerry_events", 1000 * 60 * 10);
+    setTimeout(()=>timer.run(), 7000);
 
     return function (req, res) {
-        res.json(data);
+        res.json(timer.data);
     }
 };
