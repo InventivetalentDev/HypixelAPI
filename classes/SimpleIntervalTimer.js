@@ -21,30 +21,40 @@ class SimpleIntervalTimer {
     }
 
     run() {
-        this.queryDb();
+        setTimeout(() => this.queryDb(), Math.floor(Math.random() * 5000));
         setInterval(this.calculateData, this.calcInterval);
     }
 
-    queryDb() {
+    queryDb(tryN = 0) {
         console.log("[" + this.name + "] Querying DB data...");
         let self = this;
-        this.pool.query(
-            "SELECT time FROM " + this.dbName + " ORDER BY time DESC LIMIT 5", function (err, results) {
-                if (err) {
-                    console.warn(err);
-                    return;
+        this.pool.getConnection(function (err, connection) {
+            if (err) {
+                console.warn(err);
+                if (tryN < 5) {
+                    setTimeout(() => self.queryDb(tryN + 1), 10000);
                 }
+                return;
+            }
+            connection.query(
+                "SELECT time FROM " + self.dbName + " ORDER BY time DESC LIMIT 1", function (err, results) {
+                    connection.release();
+                    if (err) {
+                        console.warn(err);
+                        return;
+                    }
 
-                if (!results || results.length <= 0) {
-                    console.warn("[" + this.name + "] No Data!");
-                    return;
-                }
+                    if (!results || results.length <= 0) {
+                        console.warn("[" + self.name + "] No Data!");
+                        return;
+                    }
 
-                self.dbData = results[0];
-                if (!self.data || !self.data.type) {
-                    self.calculateData();
-                }
-            })
+                    self.dbData = results[0];
+                    if (!self.data || !self.data.type || !self.data.success) {
+                        self.calculateData();
+                    }
+                });
+        });
     }
 
     calculateData() {
