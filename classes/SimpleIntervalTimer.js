@@ -22,7 +22,7 @@ class SimpleIntervalTimer {
 
     run() {
         setTimeout(() => this.queryDb(), Math.floor(Math.random() * 5000));
-        setInterval(this.calculateData, this.calcInterval);
+        setInterval(()=>this.calculateData(), this.calcInterval);
     }
 
     queryDb(tryN = 0) {
