@@ -11,6 +11,13 @@ class SimpleIntervalTimer {
         this.calcInterval = calcInterval;
         this.webhookSent = false;
         this.webhookRunner = require("../webhookRunner")(pool);
+
+        this.data = {
+            success: false,
+            msg: "calculating data",
+            type: this.name,
+            usingPreload: true
+        }
     }
 
     run() {
