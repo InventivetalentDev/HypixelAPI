@@ -24,7 +24,7 @@ module.exports = function (vars, pool) {
     let webhookSent = false;
 
     let timer = new SimpleIntervalTimer("spookyFestival", eventInterval, eventDuration, pool, "skyblock_spooky_events", 1000 * 60 * 10);
-    timer.run();
+    setTimeout(()=>timer.run(), 4000);
 
 
     return function (req, res) {

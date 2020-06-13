@@ -23,7 +23,7 @@ module.exports = function (vars, pool) {
 
 
     let timer = new SimpleIntervalTimer("darkAuction", eventInterval, 1000 * 60, pool, "skyblock_dark_auction_events", 1000 * 60 * 5);
-    timer.run();
+    setTimeout(()=>timer.run(), 2000);
 
     return function (req, res) {
         res.json(timer.data);

@@ -32,7 +32,7 @@ module.exports = function (vars, pool) {
     const eventDuration = oneHourInMillis;
 
     let timer = new SimpleIntervalTimer("newYear", eventInterval, eventDuration, pool, "skyblock_newyear_events", 1000 * 60 * 10);
-    timer.run();
+    setTimeout(()=>timer.run(), 3000);
 
     return function (req, res) {
         res.json(timer.data);

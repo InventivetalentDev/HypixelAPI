@@ -32,7 +32,7 @@ module.exports = function (vars, pool) {
     const eventDuration = oneHourInMillis;
 
     let timer = new SimpleIntervalTimer("winterEvent", eventInterval, eventDuration, pool, "skyblock_winter_events", 1000 * 60 * 10);
-    timer.run();
+    setTimeout(()=>timer.run(), 5000);
 
     return function (req, res) {
         res.json(timer.data);

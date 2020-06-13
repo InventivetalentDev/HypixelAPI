@@ -26,7 +26,7 @@ module.exports = function (vars, pool) {
     let webhookSent = false;
 
     let timer = new SimpleIntervalTimer("bankInterest", eventInterval, 1000, pool, "skyblock_bank_interest_events", 1000 * 60 * 10);
-    timer.run();
+    setTimeout(()=>timer.run(), 1000);
 
     return function (req, res) {
         res.json(timer.data);

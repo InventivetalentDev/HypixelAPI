@@ -24,7 +24,7 @@ module.exports = function (vars, pool) {
     const eventDuration = oneHourInMillis;
 
     let timer = new SimpleIntervalTimer("zoo", eventInterval, eventDuration, pool, "skyblock_pet_events", 1000 * 60 * 10);
-    timer.run();
+    setTimeout(()=>timer.run(), 6000);
 
     return function (req, res) {
         res.json(timer.data);

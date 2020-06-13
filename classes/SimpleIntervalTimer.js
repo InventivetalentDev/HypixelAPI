@@ -22,7 +22,7 @@ class SimpleIntervalTimer {
         console.log("[" + this.name + "] Querying DB data...");
         let self = this;
         this.pool.query(
-            "SELECT type,time FROM " + this.dbName + " ORDER BY time DESC LIMIT 5", function (err, results) {
+            "SELECT time FROM " + this.dbName + " ORDER BY time DESC LIMIT 5", function (err, results) {
                 if (err) {
                     console.warn(err);
                     return;
@@ -47,7 +47,6 @@ class SimpleIntervalTimer {
 
         let lastEvent = this.dbData;
         let lastEventTime = lastEvent.time.getTime();
-        let lastEventType = lastEvent.type;
 
         let lastEstimate = now;
         let estimate = now;
