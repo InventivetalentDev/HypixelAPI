@@ -117,6 +117,17 @@ const EVENTS = {
                 }
             ]
         }
+    ],
+    monthly: [
+        {
+            key: "interest",
+            name: "Bank Interest",
+            when: [
+                {
+                    day: 1
+                }
+            ]
+        }
     ]
 }
 
