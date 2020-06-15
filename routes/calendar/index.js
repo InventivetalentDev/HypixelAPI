@@ -30,6 +30,7 @@ const EVENTS = {
         {
             key: "spookyFestival",
             name: "Spooky Festival",
+            url: "spooky-festival",
             when: [
                 {
                     start: {
@@ -46,6 +47,7 @@ const EVENTS = {
         {
             key: "zoo",
             name: "Travelling Zoo",
+            url: "zoo",
             when: [
                 {
                     start: {
@@ -72,6 +74,7 @@ const EVENTS = {
         {
             key: "jerryWorkshop",
             name: "Jerry's Workshop",
+            url: "jerry-workshop",
             when: [
                 {
                     start: {
@@ -88,6 +91,7 @@ const EVENTS = {
         {
             key: "winter",
             name: "Season of Jerry",
+            url: "winter",
             when: [
                 {
                     start: {
@@ -104,6 +108,7 @@ const EVENTS = {
         {
             key: "newYear",
             name: "New Year Celebration",
+            url: "newyear",
             when: [
                 {
                     start: {
@@ -122,6 +127,7 @@ const EVENTS = {
         {
             key: "interest",
             name: "Bank Interest",
+            url: "bank-interest",
             when: [
                 {
                     day: 1
