@@ -29,15 +29,19 @@ module.exports = function (vars, pool) {
     const oneMinInMillis = 60000;
     const thirtySecsInMillis = 30000;
 
-    let cachedQuery = new CachedDatabaseQuery(pool,CachedDatabaseQuery.THIRTY_SECONDS,function (cb) {
+    let data = {
+        success: false,
+        msg: "calculating data",
+        type: "magmaBoss",
+        usingPreload: true
+    };
+
+    function loadData() {
+        console.log("[magmaBoss] Querying DB data...");
         pool.query(
             "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 30 AND time_rounded >= NOW() - INTERVAL 4 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
                 if (err) {
                     console.warn(err);
-                    cb({
-                        success: false,
-                        msg: "sql error"
-                    }, null);
                     return;
                 }
 
@@ -57,10 +61,6 @@ module.exports = function (vars, pool) {
                 };
 
                 if (!results || results.length <= 0) {
-                    cb({
-                        success: false,
-                        msg: "There is no data available!"
-                    }, null);
                     return;
                 }
 
@@ -187,7 +187,7 @@ module.exports = function (vars, pool) {
 
                 let estimateString = moment(averageEstimate).fromNow();
 
-                let theData = {
+                data  = {
                     success: true,
                     msg: "",
                     type: "magmaBoss",
@@ -200,7 +200,6 @@ module.exports = function (vars, pool) {
                     estimateSource: estimateSource,
                     prioritizingWaves: prioritizeWaves
                 };
-                cb(null, theData);
 
 
                 let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
@@ -226,7 +225,7 @@ module.exports = function (vars, pool) {
 
 
                         console.log("[MagmaBoss] Posting webhooks...");
-                        webhookRunner.queryWebhooksAndRun("magmaBoss", theData);
+                        webhookRunner.queryWebhooksAndRun("magmaBoss", data);
                     }
                 } else {
                     if (minutesUntilNextSpawn <= 5 || minutesUntilNextSpawn >= 20) {
@@ -234,11 +233,14 @@ module.exports = function (vars, pool) {
                     }
                 }
             })
-    })
+    }
+
+    setInterval(() => loadData(), 20000);
+
 
 
     return function (req, res) {
-        cachedQuery.respondWithCachedOrQuery(req, res);
+        res.json(data);
     }
 };
 
