@@ -5,6 +5,7 @@ const request = require("request");
 // require('request-debug')(request);
 const qs = require('querystring');
 const tunnel = require("tunnel-ssh");
+const util = require("./util");
 
 const express = require('express');
 const rateLimit = require("express-rate-limit");
@@ -146,6 +147,12 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
         conn.release();
         setTimeout(function () {
             app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
+
+            try{
+                util.postDiscordMessage("Hello World!");
+            }catch (e) {
+                console.warn(e);
+            }
         }, 2000);
     });
 
