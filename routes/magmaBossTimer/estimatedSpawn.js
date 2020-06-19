@@ -2,6 +2,7 @@ const moment = require("moment/moment");
 const fs = require("fs");
 const OneSignal = require("onesignal-node");
 const crypto = require("crypto");
+const util = require("../../util");
 
 const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
 
@@ -22,6 +23,7 @@ module.exports = function (vars, pool) {
     let latestOneSignalNotification;
 
     const twoHoursInMillis = 7.2e+6;
+    const threeHoursInMillis = 1.08e+7;
     const twentyMinsInMillis = 1.2e+6;
     const tenMinsInMillis = 600000;
     const fiveMinsInMillis = 300000;
@@ -39,7 +41,7 @@ module.exports = function (vars, pool) {
     function loadData() {
         console.log("[magmaBoss] Querying DB data...");
         pool.query(
-            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 30 AND time_rounded >= NOW() - INTERVAL 4 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
+            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 30 AND time_rounded >= NOW() - INTERVAL 8 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
                 if (err) {
                     console.warn(err);
                     return;
@@ -61,15 +63,32 @@ module.exports = function (vars, pool) {
                 };
 
                 if (!results || results.length <= 0) {
+                    util.postDiscordMessage("[MagmaTimer] There is no data!!");
+                    console.error("[magmaTimer] there is no data!!");
                     return;
                 }
 
+                let now = Date.now();
+
+                if (now - results[0].time_latest.getTime() > threeHoursInMillis) {
+                   try{
+                       util.postDiscordMessage("[MagmaTimer] Latest data is older than 3 hours!");
+                   }catch (e) {
+                       console.warn(e);
+                   }
+                }
+
+                let bestConfirmations = 0;
                 for (let i = 0; i < results.length; i++) {
                     let result = results[i];
 
                     let type = result.type;
                     let averageTime = (result.time_average.getTime() + result.time_latest.getTime()) / 2;
                     let confirmations = result.confirmations;
+
+                    if (confirmations > bestConfirmations) {
+                        bestConfirmations = confirmations;
+                    }
 
                     let moreAccurateThanLast = (confirmations > eventConfirmations[type] && (Math.abs(eventTimes[type] - averageTime) < 240000));
                     if (eventTimes[type] <= 0 || moreAccurateThanLast) {
@@ -80,7 +99,14 @@ module.exports = function (vars, pool) {
                     }
                 }
 
-                let now = Date.now();
+                if (bestConfirmations < 100) {
+                    try{
+                        util.postDiscordMessage("[MagmaTimer] Best confirmation score was " + bestConfirmations);
+                    }catch (e) {
+                        console.warn(e);
+                    }
+                }
+
 
 
                 let lastBlaze = eventTimes["blaze"];
