@@ -104,15 +104,15 @@ module.exports = function (vars, pool) {
             let time = date.getTime();
 
 
-            pool.getConnection(function (err, connection) {
-                if (err) {
-                    console.warn(err);
-                    res.status(500).json({
-                        success: false,
-                        msg: "Failed to get connection from pool"
-                    });
-                    return;
-                }
+            // pool.getConnection(function (err, connection) {
+            //     if (err) {
+            //         console.warn(err);
+            //         res.status(500).json({
+            //             success: false,
+            //             msg: "Failed to get connection from pool"
+            //         });
+            //         return;
+            //     }
 
                 function ipSqlCallback(err, results) {
                     /// 3
@@ -138,7 +138,7 @@ module.exports = function (vars, pool) {
                                 msg: "Nope. Too soon."
                             });
                             console.warn("Too Soon A");
-                            connection.release();
+                            // connection.release();
                             return;
                         }
 
@@ -149,7 +149,7 @@ module.exports = function (vars, pool) {
                                 msg: "Nope. Too soon."
                             });
                             console.warn("Too Soon B");
-                            connection.release();
+                            // connection.release();
                             return;
                         }
                     }
@@ -160,7 +160,7 @@ module.exports = function (vars, pool) {
                         /// 4
 
 
-                        connection.query(
+                        pool.query(
                             "INSERT INTO skyblock_magma_timer_ips (time,type,ipv4,ipv6,minecraftName,server,isMod,modName,captcha_score) VALUES(?,?,?,?,?,?,?,?,?)",
                             [date, type, ipv4, ipv6, username, server, isMod ? 1 : 0, modName, captchaScore], function (err, results) {
                                 if (err) {
@@ -192,13 +192,13 @@ module.exports = function (vars, pool) {
                                         success: false,
                                         msg: ""
                                     });
-                                    connection.release();
+                                    // connection.release();
                                     return;
                                 }
 
                                 let hash = crypto.createHash("md5").update(type + roundedDate.toUTCString()).digest("hex");
 
-                                connection.query(
+                                pool.query(
                                     "INSERT INTO skyblock_magma_timer_events (hash,type,time_rounded,time_average,confirmations,time_latest) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE confirmations=confirmations+?, time_latest=?",
                                     [hash, type, roundedDate, date, confirmationIncrease, date, confirmationIncrease, date], function (err, results) {
                                         if (err) {
@@ -217,7 +217,7 @@ module.exports = function (vars, pool) {
                                         });
                                         console.log(" ");
 
-                                        connection.release();
+                                        // connection.release();
                                     });
 
                             })
@@ -245,15 +245,15 @@ module.exports = function (vars, pool) {
                 }
 
                 if (!ipv6) {
-                    connection.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv4=? ORDER BY time DESC LIMIT 1", ipv4, ipSqlCallback);
+                    pool.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv4=? ORDER BY time DESC LIMIT 1", ipv4, ipSqlCallback);
                 } else if (!ipv4) {
-                    connection.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv6=? ORDER BY time DESC LIMIT 1", ipv6, ipSqlCallback);
+                    pool.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv6=? ORDER BY time DESC LIMIT 1", ipv6, ipSqlCallback);
                 } else {
-                    connection.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE ipv4=? OR ipv6=? ORDER BY time DESC LIMIT 1", [ipv4, ipv6], ipSqlCallback);
+                    pool.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE ipv4=? OR ipv6=? ORDER BY time DESC LIMIT 1", [ipv4, ipv6], ipSqlCallback);
                 }
 
 
-            })
+            // })
         }
 
         if (req.body.captcha && !req.body.isModRequest) {
