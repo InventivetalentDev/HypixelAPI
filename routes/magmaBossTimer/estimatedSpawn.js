@@ -70,9 +70,9 @@ module.exports = function (vars, pool) {
 
                 let now = Date.now();
 
-                if (now - results[0].time_latest.getTime() > threeHoursInMillis) {
+                if (now - results[0].time_latest.getTime() > threeHoursInMillis * 2) {
                    try{
-                       util.postDiscordMessage("[MagmaTimer] Latest data is older than 3 hours!");
+                       util.postDiscordMessage("[MagmaTimer] Latest data is older than 6 hours!");
                    }catch (e) {
                        console.warn(e);
                    }
