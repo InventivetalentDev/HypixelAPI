@@ -124,7 +124,7 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
 // DarkAuction timer
     app.get("/api/skyblock/darkauction/estimate", generalLimiter, require("./routes/darkAuctionTimer/estimate")(vars, pool));
 
-// DarkAuction timer
+// BroodMother timer
     app.get("/api/skyblock/broodmother/estimate", generalLimiter, require("./routes/broodMotherTimer/estimate")(vars, pool));
 
 // Interest timer
