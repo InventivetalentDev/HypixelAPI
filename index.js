@@ -140,21 +140,23 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
 
     app.get("/api/skyblock/calendar", generalLimiter, require("./routes/calendar/index")(vars, pool));
 
-    let poolStart =Date.now();
-    pool.getConnection(function (err,conn) {
-        if(err)throw err;
-        console.log("Got SQL pool connection after " + ((Date.now() - poolStart) / 1000) + "s");
-        conn.release();
-        setTimeout(function () {
-            app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
+    setTimeout(function () {
+        let poolStart = Date.now();
+        pool.getConnection(function (err, conn) {
+            if (err) throw err;
+            console.log("Got SQL pool connection after " + ((Date.now() - poolStart) / 1000) + "s");
+            conn.release();
+            setTimeout(function () {
+                app.listen(port, () => console.log(`BossTimer app listening on port ${ port }!`));
 
-            try{
-                util.postDiscordMessage("Hello World!");
-            }catch (e) {
-                console.warn(e);
-            }
-        }, 2000);
-    });
+                try{
+                    util.postDiscordMessage("Hello World!");
+                }catch (e) {
+                    console.warn(e);
+                }
+            }, 10000);
+        });
+    }, 2000);
 
     setInterval(function () {
         console.log("Open SQL Pool connections: " + pool._allConnections.length);
