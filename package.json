@@ -21,6 +21,6 @@
     "request": "^2.88.0",
     "swagger-stats": "^0.95.7",
     "tunnel-ssh": "^4.1.4",
-    "prismarine-nbt": "1.2.1"
+    "prismarine-nbt": "1.6.0"
   }
 }
