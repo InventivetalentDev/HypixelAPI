@@ -91,8 +91,26 @@ module.exports = function (vars, pool) {
             }
         }
 
-        let isMod = (typeof req.body.minecraftUser !== "undefined") && (userAgent.startsWith("BossTimerMod/")||userAgent.startsWith("SkyblockAddons/")||userAgent.startsWith("BadlionClient")) && req.body.isModRequest === "true";
+        let isMod = (typeof req.body.minecraftUser !== "undefined") &&
+            (userAgent.startsWith("BossTimerMod/")||userAgent.startsWith("SkyblockAddons/")||userAgent.startsWith("BadlionClient")) &&
+            req.body.isModRequest === "true";
         console.log("isMod: " + isMod);
+
+        // Block requests from SkyblockAddons pre 1.6.1, since they detected the wrong entity as the magma boss
+        //  https://discord.com/channels/398243219961413653/607627691784667166/899826373160488972
+        if (isMod && userAgent.startsWith("SkyblockAddons/")) {
+            let split = userAgent.split("\/");
+            let ver = parseInt(split[1].replace(/\./g, ""));
+            if (ver < 161) {
+                // just accept it, don't really need any clientside errors
+                res.status(201).json({
+                    success: false,
+                    msg: "SkyblockAddons < 1.6.1 blocked"
+                });
+                console.log(userAgent + " blocked");
+                return;
+            }
+        }
 
         let modName = isMod ? userAgent : "";
 
