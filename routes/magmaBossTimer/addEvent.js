@@ -194,7 +194,7 @@ module.exports = function (vars, pool) {
                                 let roundedDate = new Date(roundedTime);
 
                                 if (isMod) {
-                                    confirmationIncrease += 2;
+                                    confirmationIncrease += 5;
                                 }
 
                                 if (ipv6) {
