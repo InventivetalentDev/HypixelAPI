@@ -6,7 +6,7 @@ const util = require("../../util");
 
 const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
 
-const PRIORITIZE_WAVES_THRESHOLD = 50;
+const PRIORITIZE_WAVES_THRESHOLD = 30;
 
 module.exports = function (vars, pool) {
 
@@ -231,7 +231,7 @@ module.exports = function (vars, pool) {
 
 
                 let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
-                console.log("[MagmaBoss] Minutes until event: " + minutesUntilNextSpawn);
+                console.log("[MagmaBoss] Minutes until event: " + minutesUntilNextSpawn + " (" + estimateSource + ")");
                 if (!latestOneSignalNotification && prioritizeWaves) {
                     if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
                         console.log("[MagmaBoss] Sending OneSignal push notification...");
