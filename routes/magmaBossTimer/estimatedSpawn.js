@@ -31,6 +31,8 @@ module.exports = function (vars, pool) {
     const oneMinInMillis = 60000;
     const thirtySecsInMillis = 30000;
 
+    let lastConfirmationWarning = 0;
+
     let data = {
         success: false,
         msg: "calculating data",
@@ -41,7 +43,7 @@ module.exports = function (vars, pool) {
     function loadData() {
         console.log("[magmaBoss] Querying DB data...");
         pool.query(
-            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 30 AND time_rounded >= NOW() - INTERVAL 8 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
+            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 20 AND time_rounded >= NOW() - INTERVAL 8 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
                 if (err) {
                     console.warn(err);
                     return;
@@ -71,11 +73,11 @@ module.exports = function (vars, pool) {
                 let now = Date.now();
 
                 if (now - results[0].time_latest.getTime() > threeHoursInMillis * 2) {
-                   try{
-                       util.postDiscordMessage("[MagmaTimer] Latest data is older than 6 hours!");
-                   }catch (e) {
-                       console.warn(e);
-                   }
+                    try {
+                        util.postDiscordMessage("[MagmaTimer] Latest data is older than 6 hours!");
+                    } catch (e) {
+                        console.warn(e);
+                    }
                 }
 
                 let bestConfirmations = 0;
@@ -99,14 +101,14 @@ module.exports = function (vars, pool) {
                     }
                 }
 
-                if (bestConfirmations < 100) {
-                    try{
+                if (bestConfirmations < 100 && (Date.now() - lastConfirmationWarning > 1000 * 60 * 60)) {
+                    try {
                         util.postDiscordMessage("[MagmaTimer] Best confirmation score was " + bestConfirmations);
-                    }catch (e) {
+                        lastConfirmationWarning = Date.now();
+                    } catch (e) {
                         console.warn(e);
                     }
                 }
-
 
 
                 let lastBlaze = eventTimes["blaze"];
@@ -213,7 +215,7 @@ module.exports = function (vars, pool) {
 
                 let estimateString = moment(averageEstimate).fromNow();
 
-                data  = {
+                data = {
                     success: true,
                     msg: "",
                     type: "magmaBoss",
@@ -262,7 +264,6 @@ module.exports = function (vars, pool) {
     }
 
     setInterval(() => loadData(), 20000);
-
 
 
     return function (req, res) {
