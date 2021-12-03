@@ -105,10 +105,10 @@ module.exports = function (vars, pool) {
             let ver = parseInt(split[1].replace(/\./g, ""));
             if (ver < 161) {
                 // just accept it, don't really need any clientside errors
-                res.status(201).json({
-                    success: false,
-                    msg: "SkyblockAddons < 1.6.1 blocked"
-                });
+                // res.status(201).json({
+                //     success: false,
+                //     msg: "SkyblockAddons < 1.6.1 blocked"
+                // });
                 console.log(userAgent + " blocked");
                 isOutdatedSBA = true;
             }
@@ -198,7 +198,7 @@ module.exports = function (vars, pool) {
                             if (isMod) {
                                 if (isSBA && !isOutdatedSBA) {
                                     confirmationIncrease += 10;
-                                } else if(!isOutdatedSBA) {
+                                } else if (!isOutdatedSBA) {
                                     confirmationIncrease += 2;
                                 }
                             }
@@ -235,10 +235,17 @@ module.exports = function (vars, pool) {
                                     }
 
                                     console.log("Added");
-                                    res.json({
-                                        success: true,
-                                        msg: "Added!"
-                                    });
+                                    if (isOutdatedSBA) {
+                                        res.json({
+                                            success: false,
+                                            msg: "SkyblockAddons < 1.6.1 blocked"
+                                        })
+                                    } else {
+                                        res.json({
+                                            success: true,
+                                            msg: "Added!"
+                                        });
+                                    }
                                     console.log(" ");
 
                                     // connection.release();
