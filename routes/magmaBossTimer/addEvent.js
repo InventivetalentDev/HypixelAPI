@@ -99,7 +99,8 @@ module.exports = function (vars, pool) {
         let isOutdatedSBA = false;
         // Block requests from SkyblockAddons pre 1.6.1, since they detected the wrong entity as the magma boss
         //  https://discord.com/channels/398243219961413653/607627691784667166/899826373160488972
-        if (isMod && userAgent.startsWith("SkyblockAddons/")) {
+        let isSBA = isMod && userAgent.startsWith("SkyblockAddons/");
+        if (isSBA) {
             let split = userAgent.split("\/");
             let ver = parseInt(split[1].replace(/\./g, ""));
             if (ver < 161) {
@@ -195,8 +196,10 @@ module.exports = function (vars, pool) {
                             let roundedDate = new Date(roundedTime);
 
                             if (isMod) {
-                                if (!isOutdatedSBA) {
-                                    confirmationIncrease += 5;
+                                if (isSBA && !isOutdatedSBA) {
+                                    confirmationIncrease += 10;
+                                } else if(!isOutdatedSBA) {
+                                    confirmationIncrease += 2;
                                 }
                             }
 
