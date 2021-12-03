@@ -203,11 +203,11 @@ module.exports = function (vars, pool) {
                                 }
                             }
 
-                            if (ipv6) {
-                                confirmationIncrease++;
-                            } else {
-                                confirmationIncrease--;
-                            }
+                            // if (ipv6) {
+                            //     confirmationIncrease++;
+                            // } else {
+                            //     confirmationIncrease--;
+                            // }
 
                             console.log("confirmationIncrease: " + confirmationIncrease);
 

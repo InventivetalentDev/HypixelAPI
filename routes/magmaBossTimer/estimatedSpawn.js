@@ -6,7 +6,7 @@ const util = require("../../util");
 
 const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
 
-const PRIORITIZE_WAVES_THRESHOLD = 70;
+const PRIORITIZE_WAVES_THRESHOLD = 50;
 
 module.exports = function (vars, pool) {
 
