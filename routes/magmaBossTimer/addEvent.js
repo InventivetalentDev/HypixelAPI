@@ -15,7 +15,7 @@ module.exports = function (vars, pool) {
         console.log("addEvent");
         console.log(req.body);
 
-        res.set("Cache-Control","public, max-age=20");
+        res.set("Cache-Control", "public, max-age=20");
 
         if (!req.body.type) {
             res.status(400).json({
@@ -92,10 +92,11 @@ module.exports = function (vars, pool) {
         }
 
         let isMod = (typeof req.body.minecraftUser !== "undefined") &&
-            (userAgent.startsWith("BossTimerMod/")||userAgent.startsWith("SkyblockAddons/")||userAgent.startsWith("BadlionClient")) &&
+            (userAgent.startsWith("BossTimerMod/") || userAgent.startsWith("SkyblockAddons/") || userAgent.startsWith("BadlionClient")) &&
             req.body.isModRequest === "true";
         console.log("isMod: " + isMod);
 
+        let isOutdatedSBA = false;
         // Block requests from SkyblockAddons pre 1.6.1, since they detected the wrong entity as the magma boss
         //  https://discord.com/channels/398243219961413653/607627691784667166/899826373160488972
         if (isMod && userAgent.startsWith("SkyblockAddons/")) {
@@ -108,7 +109,7 @@ module.exports = function (vars, pool) {
                     msg: "SkyblockAddons < 1.6.1 blocked"
                 });
                 console.log(userAgent + " blocked");
-                return;
+                isOutdatedSBA = true;
             }
         }
 
@@ -132,143 +133,145 @@ module.exports = function (vars, pool) {
             //         return;
             //     }
 
-                function ipSqlCallback(err, results) {
-                    /// 3
-                    if (err) {
-                        console.warn(err);
-                        res.status(500).json({
+            function ipSqlCallback(err, results) {
+                /// 3
+                if (err) {
+                    console.warn(err);
+                    res.status(500).json({
+                        success: false,
+                        msg: "SQL error"
+                    });
+                    return;
+                }
+
+
+                if (results.length > 0) {
+                    let lastType = results[0].type;
+                    let lastTime = results[0].time.getTime();
+
+                    console.info("Type: " + type + "  LastType: " + lastType);
+
+                    if (type === lastType && time - lastTime < 3.6e+6/* 1hr */) {
+                        res.status(429).json({
                             success: false,
-                            msg: "SQL error"
+                            msg: "Nope. Too soon."
                         });
+                        console.warn("Too Soon A");
+                        // connection.release();
                         return;
                     }
 
-
-                    if (results.length > 0) {
-                        let lastType = results[0].type;
-                        let lastTime = results[0].time.getTime();
-
-                        console.info("Type: " + type + "  LastType: " + lastType);
-
-                        if (type === lastType && time - lastTime < 3.6e+6/* 1hr */) {
-                            res.status(429).json({
-                                success: false,
-                                msg: "Nope. Too soon."
-                            });
-                            console.warn("Too Soon A");
-                            // connection.release();
-                            return;
-                        }
-
-                        let throttle = type === "death" && lastType === "spawn" ? 10000/*10sec*/ : type === "spawn" && lastType === "music" ? 40000/*40sec*/ : type === "death" && lastType === "music" ? 50000/*50sec*/ : 120000/*2min*/;
-                        if (time - lastTime < throttle) {
-                            res.status(429).json({
-                                success: false,
-                                msg: "Nope. Too soon."
-                            });
-                            console.warn("Too Soon B");
-                            // connection.release();
-                            return;
-                        }
+                    let throttle = type === "death" && lastType === "spawn" ? 10000/*10sec*/ : type === "spawn" && lastType === "music" ? 40000/*40sec*/ : type === "death" && lastType === "music" ? 50000/*50sec*/ : 120000/*2min*/;
+                    if (time - lastTime < throttle) {
+                        res.status(429).json({
+                            success: false,
+                            msg: "Nope. Too soon."
+                        });
+                        console.warn("Too Soon B");
+                        // connection.release();
+                        return;
                     }
+                }
 
-                    let confirmationIncrease = 1;
+                let confirmationIncrease = 1;
 
-                    function nameCallback() {
-                        /// 4
+                function nameCallback() {
+                    /// 4
 
 
-                        pool.query(
-                            "INSERT INTO skyblock_magma_timer_ips (time,type,ipv4,ipv6,minecraftName,server,isMod,modName,captcha_score) VALUES(?,?,?,?,?,?,?,?,?)",
-                            [date, type, ipv4, ipv6, username, server, isMod ? 1 : 0, modName, captchaScore], function (err, results) {
-                                if (err) {
-                                    console.warn(err);
-                                    res.status(500).json({
-                                        success: false,
-                                        msg: "SQL error"
-                                    });
-                                    return;
-                                }
+                    pool.query(
+                        "INSERT INTO skyblock_magma_timer_ips (time,type,ipv4,ipv6,minecraftName,server,isMod,modName,captcha_score) VALUES(?,?,?,?,?,?,?,?,?)",
+                        [date, type, ipv4, ipv6, username, server, isMod ? 1 : 0, modName, captchaScore], function (err, results) {
+                            if (err) {
+                                console.warn(err);
+                                res.status(500).json({
+                                    success: false,
+                                    msg: "SQL error"
+                                });
+                                return;
+                            }
 
-                                let roundedTime = Math.round(Math.round(time / confirmationCheckFactor) * confirmationCheckFactor);
-                                let roundedDate = new Date(roundedTime);
+                            let roundedTime = Math.round(Math.round(time / confirmationCheckFactor) * confirmationCheckFactor);
+                            let roundedDate = new Date(roundedTime);
 
-                                if (isMod) {
+                            if (isMod) {
+                                if (!isOutdatedSBA) {
                                     confirmationIncrease += 5;
                                 }
-
-                                if (ipv6) {
-                                    confirmationIncrease++;
-                                } else {
-                                    confirmationIncrease--;
-                                }
-
-                                console.log("confirmationIncrease: " + confirmationIncrease);
-
-                                if (confirmationIncrease <= 0) {
-                                    res.status(403).json({
-                                        success: false,
-                                        msg: ""
-                                    });
-                                    // connection.release();
-                                    return;
-                                }
-
-                                let hash = crypto.createHash("md5").update(type + roundedDate.toUTCString()).digest("hex");
-
-                                pool.query(
-                                    "INSERT INTO skyblock_magma_timer_events (hash,type,time_rounded,time_average,confirmations,time_latest) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE confirmations=confirmations+?, time_latest=?",
-                                    [hash, type, roundedDate, date, confirmationIncrease, date, confirmationIncrease, date], function (err, results) {
-                                        if (err) {
-                                            console.warn(err);
-                                            res.status(500).json({
-                                                success: false,
-                                                msg: "SQL error"
-                                            });
-                                            return;
-                                        }
-
-                                        console.log("Added");
-                                        res.json({
-                                            success: true,
-                                            msg: "Added!"
-                                        });
-                                        console.log(" ");
-
-                                        // connection.release();
-                                    });
-
-                            })
-
-                    }
-
-                    if (username.length > 0) {
-                        util.verifyMinecraftUsername(username, function (err, nameRes) {
-                            if (nameRes) {
-                                confirmationIncrease += 2;
-                                nameCallback();
-                            } else {
-                                console.warn("Invalid username provided");
-                                res.status(400).json({
-                                    success: false,
-                                    msg: "LOL. Nope."
-                                })
                             }
+
+                            if (ipv6) {
+                                confirmationIncrease++;
+                            } else {
+                                confirmationIncrease--;
+                            }
+
+                            console.log("confirmationIncrease: " + confirmationIncrease);
+
+                            if (confirmationIncrease <= 0) {
+                                res.status(403).json({
+                                    success: false,
+                                    msg: ""
+                                });
+                                // connection.release();
+                                return;
+                            }
+
+                            let hash = crypto.createHash("md5").update(type + roundedDate.toUTCString()).digest("hex");
+
+                            pool.query(
+                                "INSERT INTO skyblock_magma_timer_events (hash,type,time_rounded,time_average,confirmations,time_latest) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE confirmations=confirmations+?, time_latest=?",
+                                [hash, type, roundedDate, date, confirmationIncrease, date, confirmationIncrease, date], function (err, results) {
+                                    if (err) {
+                                        console.warn(err);
+                                        res.status(500).json({
+                                            success: false,
+                                            msg: "SQL error"
+                                        });
+                                        return;
+                                    }
+
+                                    console.log("Added");
+                                    res.json({
+                                        success: true,
+                                        msg: "Added!"
+                                    });
+                                    console.log(" ");
+
+                                    // connection.release();
+                                });
+
                         })
-                    } else {
-                        nameCallback();
-                    }
-
 
                 }
 
-                if (!ipv6) {
-                    pool.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv4=? ORDER BY time DESC LIMIT 1", ipv4, ipSqlCallback);
-                } else if (!ipv4) {
-                    pool.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv6=? ORDER BY time DESC LIMIT 1", ipv6, ipSqlCallback);
+                if (username.length > 0) {
+                    util.verifyMinecraftUsername(username, function (err, nameRes) {
+                        if (nameRes) {
+                            confirmationIncrease += 2;
+                            nameCallback();
+                        } else {
+                            console.warn("Invalid username provided");
+                            res.status(400).json({
+                                success: false,
+                                msg: "LOL. Nope."
+                            })
+                        }
+                    })
                 } else {
-                    pool.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE ipv4=? OR ipv6=? ORDER BY time DESC LIMIT 1", [ipv4, ipv6], ipSqlCallback);
+                    nameCallback();
                 }
+
+
+            }
+
+            if (!ipv6) {
+                pool.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv4=? ORDER BY time DESC LIMIT 1", ipv4, ipSqlCallback);
+            } else if (!ipv4) {
+                pool.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE  ipv6=? ORDER BY time DESC LIMIT 1", ipv6, ipSqlCallback);
+            } else {
+                pool.query("SELECT time,type FROM skyblock_magma_timer_ips WHERE ipv4=? OR ipv6=? ORDER BY time DESC LIMIT 1", [ipv4, ipv6], ipSqlCallback);
+            }
 
 
             // })
