@@ -101,7 +101,7 @@ module.exports = function (vars, pool) {
                     }
                 }
 
-                if (bestConfirmations < 100 && (Date.now() - lastConfirmationWarning > 1000 * 60 * 60)) {
+                if (bestConfirmations < 50 && (Date.now() - lastConfirmationWarning > 1000 * 60 * 60)) {
                     try {
                         util.postDiscordMessage("[MagmaTimer] Best confirmation score was " + bestConfirmations);
                         lastConfirmationWarning = Date.now();
