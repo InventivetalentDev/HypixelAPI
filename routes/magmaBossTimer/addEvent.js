@@ -198,6 +198,9 @@ module.exports = function (vars, pool) {
                             if (isMod) {
                                 if (isSBA && !isOutdatedSBA) {
                                     confirmationIncrease += 10;
+                                    if (type === "blaze") {
+                                        confirmationIncrease += 5;
+                                    }
                                 } else if (!isOutdatedSBA) {
                                     confirmationIncrease += 2;
                                 }
