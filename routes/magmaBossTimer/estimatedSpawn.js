@@ -111,6 +111,8 @@ module.exports = function (vars, pool) {
                     } catch (e) {
                         console.warn(e);
                     }
+                }
+                if (bestConfirmations < 30) {
                     confidence /= 2;
                 }
 
@@ -190,10 +192,13 @@ module.exports = function (vars, pool) {
                         if (lastSpawn > latestEvent) {
                             latestEvent = lastSpawn;
                             confidence = 0.6;
+                            if (spawnsSinceLast <= 1) {
+                                confidence += 0.2;
+                            }
                         }
                     }
 
-                    if (lastDeath > 0) {
+                    if (lastDeath > 0 && eventConfirmations["death"] > eventConfirmations["spawn"]) {
                         let deathsSinceLast = Math.floor((now - lastDeath) / twoHoursInMillis);
                         deathsSinceLast++;
 
@@ -207,6 +212,9 @@ module.exports = function (vars, pool) {
                         if (lastDeath > latestEvent) {
                             latestEvent = lastDeath;
                             confidence = 0.6;
+                            if (deathsSinceLast <= 1) {
+                                confidence += 0.2;
+                            }
                         }
                     }
                 }
@@ -222,6 +230,7 @@ module.exports = function (vars, pool) {
                 // }
 
                 confidence *= eventConfirmations[estimateSource] / 50;
+                confidence = Math.max(0, Math.min(confidence, 1));
 
                 let estimateString = moment(averageEstimate).fromNow();
 
@@ -237,7 +246,7 @@ module.exports = function (vars, pool) {
                     estimateRelative: estimateString,
                     estimateSource: estimateSource,
                     prioritizingWaves: prioritizeWaves,
-                    confidence: Math.max(0, Math.min(confidence, 1))
+                    confidence: confidence
                 };
 
 
