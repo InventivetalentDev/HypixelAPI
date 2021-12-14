@@ -6,7 +6,7 @@ const util = require("../../util");
 
 const CachedDatabaseQuery = require("../../classes/CachedDatabaseQuery");
 
-const PRIORITIZE_WAVES_THRESHOLD = 30;
+const PRIORITIZE_WAVES_THRESHOLD = 20;
 
 module.exports = function (vars, pool) {
 
@@ -144,7 +144,7 @@ module.exports = function (vars, pool) {
                     estimateSource = "blaze";
                     gotBlaze = true;
 
-                    if (eventConfirmations["blaze"] > PRIORITIZE_WAVES_THRESHOLD) {
+                    if (eventConfirmations["blaze"] > eventConfirmations["spawn"] && eventConfirmations["blaze"] > PRIORITIZE_WAVES_THRESHOLD) {
                         prioritizeWaves = true;
                         confidence = 0.8;
                     }
@@ -161,7 +161,7 @@ module.exports = function (vars, pool) {
                     estimateSource = "magma";
                     gotMagma = true;
 
-                    if (eventConfirmations["magma"] > PRIORITIZE_WAVES_THRESHOLD) {
+                    if (eventConfirmations["magma"] > eventConfirmations["spawn"] && eventConfirmations["magma"] > PRIORITIZE_WAVES_THRESHOLD) {
                         prioritizeWaves = true;
                         confidence = 0.7;
                     }
