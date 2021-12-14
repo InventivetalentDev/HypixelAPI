@@ -70,11 +70,14 @@ module.exports = function (vars, pool) {
                     return;
                 }
 
+                let confidence = 0.5;
+
                 let now = Date.now();
 
                 if (now - results[0].time_latest.getTime() > threeHoursInMillis * 2) {
                     try {
                         util.postDiscordMessage("[MagmaTimer] Latest data is older than 6 hours!");
+                        confidence = 0.1;
                     } catch (e) {
                         console.warn(e);
                     }
@@ -108,6 +111,7 @@ module.exports = function (vars, pool) {
                     } catch (e) {
                         console.warn(e);
                     }
+                    confidence /= 2;
                 }
 
 
@@ -137,6 +141,7 @@ module.exports = function (vars, pool) {
 
                     if (eventConfirmations["blaze"] > PRIORITIZE_WAVES_THRESHOLD) {
                         prioritizeWaves = true;
+                        confidence = 0.8;
                     }
 
                     if (lastBlaze > latestEvent) {
@@ -152,6 +157,7 @@ module.exports = function (vars, pool) {
 
                     if (eventConfirmations["magma"] > PRIORITIZE_WAVES_THRESHOLD) {
                         prioritizeWaves = true;
+                        confidence = 0.7;
                     }
 
                     if (lastMagma > latestEvent) {
@@ -183,6 +189,7 @@ module.exports = function (vars, pool) {
 
                         if (lastSpawn > latestEvent) {
                             latestEvent = lastSpawn;
+                            confidence = 0.6;
                         }
                     }
 
@@ -199,6 +206,7 @@ module.exports = function (vars, pool) {
 
                         if (lastDeath > latestEvent) {
                             latestEvent = lastDeath;
+                            confidence = 0.6;
                         }
                     }
                 }
@@ -213,6 +221,8 @@ module.exports = function (vars, pool) {
                 //     averageEstimate += tenMinsInMillis;
                 // }
 
+                confidence *= eventConfirmations[estimateSource] / 50;
+
                 let estimateString = moment(averageEstimate).fromNow();
 
                 data = {
@@ -226,12 +236,13 @@ module.exports = function (vars, pool) {
                     estimate: averageEstimate,
                     estimateRelative: estimateString,
                     estimateSource: estimateSource,
-                    prioritizingWaves: prioritizeWaves
+                    prioritizingWaves: prioritizeWaves,
+                    confidence: Math.max(0, Math.min(confidence, 1))
                 };
 
 
                 let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
-                console.log("[MagmaBoss] Minutes until event: " + minutesUntilNextSpawn + " (" + estimateSource + ")");
+                console.log("[MagmaBoss] Minutes until event: " + minutesUntilNextSpawn + " (" + estimateSource + ", " + confidence + ")");
                 if (!latestOneSignalNotification && prioritizeWaves) {
                     if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
                         console.log("[MagmaBoss] Sending OneSignal push notification...");
