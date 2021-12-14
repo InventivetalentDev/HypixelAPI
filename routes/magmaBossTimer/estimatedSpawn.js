@@ -134,12 +134,15 @@ module.exports = function (vars, pool) {
                 let prioritizeWaves = false;
 
 
+                let gotBlaze = false;
+                let gotMagma = false;
                 if (lastBlaze > lastSpawn && lastBlaze > lastDeath && now - lastBlaze < twentyMinsInMillis) {
                     let estimate = lastBlaze + twentyMinsInMillis;
                     averageEstimate += estimate * eventConfirmations["blaze"];
                     averageEstimateCounter += eventConfirmations["blaze"];
 
                     estimateSource = "blaze";
+                    gotBlaze = true;
 
                     if (eventConfirmations["blaze"] > PRIORITIZE_WAVES_THRESHOLD) {
                         prioritizeWaves = true;
@@ -156,6 +159,7 @@ module.exports = function (vars, pool) {
                     averageEstimateCounter += eventConfirmations["magma"];
 
                     estimateSource = "magma";
+                    gotMagma = true;
 
                     if (eventConfirmations["magma"] > PRIORITIZE_WAVES_THRESHOLD) {
                         prioritizeWaves = true;
@@ -166,6 +170,11 @@ module.exports = function (vars, pool) {
                         latestEvent = lastMagma;
                     }
                 }
+
+                if (gotBlaze && gotMagma) {
+                    confidence *= 2;
+                }
+
                 if (lastMusic > lastSpawn && lastMusic > lastDeath && lastMusic > lastBlaze && lastMusic > lastMagma && now - lastMusic < twoMinsInMillis) {
                     let estimate = lastMusic + twoMinsInMillis;
                     averageEstimate += estimate * eventConfirmations["music"];
