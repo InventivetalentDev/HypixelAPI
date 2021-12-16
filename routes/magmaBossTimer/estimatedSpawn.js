@@ -203,6 +203,8 @@ module.exports = function (vars, pool) {
                             confidence = 0.6;
                             if (spawnsSinceLast <= 1) {
                                 confidence += 0.2;
+                            }else if (spawnsSinceLast > 2) {
+                                confidence*=0.25;
                             }
                         }
                     }
@@ -223,6 +225,8 @@ module.exports = function (vars, pool) {
                             confidence = 0.6;
                             if (deathsSinceLast <= 1) {
                                 confidence += 0.2;
+                            }else if (deathsSinceLast > 2) {
+                                confidence*=0.25;
                             }
                         }
                     }

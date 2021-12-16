@@ -202,6 +202,11 @@ module.exports = function (vars, pool) {
                                     if (type === "blaze") {
                                         confirmationIncrease += 5;
                                     }
+
+                                    if(username==="inventivetalent") {
+                                        console.log("username=inventivetalent");
+                                        confirmationIncrease+=20;
+                                    }
                                 } else if (!isOutdatedSBA) {
                                     console.log("!isOutdatedSBA")
                                     confirmationIncrease += 2;
