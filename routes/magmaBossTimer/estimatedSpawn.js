@@ -43,7 +43,7 @@ module.exports = function (vars, pool) {
     function loadData() {
         console.log("[magmaBoss] Querying DB data...");
         pool.query(
-            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 20 AND time_rounded >= NOW() - INTERVAL 8 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
+            "SELECT type,time_rounded,confirmations,time_average,time_latest FROM skyblock_magma_timer_events WHERE confirmations >= 10 AND time_rounded >= NOW() - INTERVAL 8 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
                 if (err) {
                     console.warn(err);
                     return;
