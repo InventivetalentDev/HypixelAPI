@@ -104,6 +104,18 @@ const server = tunnel(vars.tunnel, function (err, tnl) {
     app.post("/api/skyblock/bosstimer/magma/ping", magmaPostLimiter, require("./routes/magmaBossTimer/ping")(vars, pool));
 
 
+/// Volcano Stuff
+    app.get("/api/skyblock/volcano/activeUsers", magmaLimiter, require("./routes/volcanoTimer/activeUsers")(vars, pool));
+    app.get("/api/skyblock/volcano/eventStats", magmaLimiter,require("./routes/volcanoTimer/eventStats")(vars, pool));
+    app.get("/api/skyblock/volcano/mostActiveUsers",magmaLimiter, require("./routes/volcanoTimer/mostActiveUsers")(vars, pool));
+
+    app.get("/api/skyblock/volcano/estimatedEruption",magmaLimiter, require("./routes/volcanoTimer/estimatedEruption")(vars, pool));
+    app.get("/api/skyblock/volcano/userCheck", magmaLimiter,require("./routes/volcanoTimer/userCheck")(vars, pool));
+    app.get("/api/skyblock/volcano/historyChart",magmaLimiter, require("./routes/volcanoTimer/historyChart")(vars, pool));
+    app.post("/api/skyblock/volcano/addEvent", magmaPostLimiter, require("./routes/volcanoTimer/addEvent")(vars, pool));
+    app.post("/api/skyblock/volcano/ping", magmaPostLimiter, require("./routes/volcanoTimer/ping")(vars, pool));
+
+
 // NewYear timer
     app.get("/api/skyblock/newyear/estimate", generalLimiter, require("./routes/newYearTimer/estimate")(vars, pool));
 
