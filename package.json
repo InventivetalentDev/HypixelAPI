@@ -13,7 +13,7 @@
     "express": "^4.17.1",
     "express-rate-limit": "^5.0.0",
     "express-status-monitor": "^1.2.6",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "mysql": "^2.17.1",
     "onesignal-node": "^2.1.1",
     "querystring": "^0.2.0",
