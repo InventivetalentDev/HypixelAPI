@@ -53,7 +53,7 @@ module.exports = function (vars, pool) {
                 let eruptionConfirmations = 0;
 
                 if (!results || results.length <= 0) {
-                    util.postDiscordMessage("[volcano] There is no data!!");
+                    // util.postDiscordMessage("[volcano] There is no data!!");
                     console.error("[volcano] there is no data!!");
                     return;
                 }

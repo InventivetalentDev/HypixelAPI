@@ -15,7 +15,7 @@ module.exports = function (vars, pool) {
         }
     }, 500);
     setInterval(function () {
-        console.log("Magma Timer Ping queue length: " + queue.length);
+        console.log("Volcano Timer Ping queue length: " + queue.length);
     }, 30000);
 
     return function (req, res) {
