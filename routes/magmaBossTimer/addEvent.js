@@ -26,7 +26,7 @@ module.exports = function (vars, pool) {
         }
 
         let type = req.body.type;
-        if (type !== "blaze" && type !== "magma" && type !== "music" && type !== "spawn" && type !== "death" && type !== "restart") {
+        if (/*type !== "blaze" && type !== "magma" && type !== "music" &&*/ type !== "spawn" && type !== "death" && type !== "restart") {
             res.status(400).json({
                 success: false,
                 msg: "unknown event"

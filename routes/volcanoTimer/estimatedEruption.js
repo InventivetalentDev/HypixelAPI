@@ -31,6 +31,8 @@ module.exports = function (vars, pool) {
     const oneMinInMillis = 60000;
     const thirtySecsInMillis = 30000;
 
+    const maxFill = 225;
+
     let lastConfirmationWarning = 0;
 
     let data = {
@@ -71,6 +73,12 @@ module.exports = function (vars, pool) {
                     }
                 }
 
+                let fillsPerTime = {};
+                let timePerFill = {};
+                let latestFill = 0;
+                let latestFillHeight = 0;
+                let fillConfirmations = 0;
+
                 let bestConfirmations = 0;
                 for (let i = 0; i < results.length; i++) {
                     let result = results[i];
@@ -87,6 +95,13 @@ module.exports = function (vars, pool) {
                             latestEruption = averageTime;
                             eruptionConfirmations = confirmations;
                         }
+                        if (type === 'fill') {
+                            latestFill = averageTime;
+                            latestFillHeight = result.fill_height;
+                            fillConfirmations = confirmations;
+                            fillsPerTime[averageTime] = result.fill_height;
+                            timePerFill[result.fill_height] = averageTime;
+                        }
                     }
 
 
@@ -100,6 +115,39 @@ module.exports = function (vars, pool) {
                 }
 
                 console.log("[volcano] latest eruption: " + new Date(latestEruption));
+                console.log("[volcano] latest fill: " + new Date(latestFill));
+
+                // calculate fill speed
+                let perSecond = 0;
+
+                let fillHeights = Object.keys(timePerFill);
+                for (let i = 0; i < fillHeights.length - 1; i++) {
+                    let fillHeight = fillHeights[i];
+                    let time = timePerFill[fillHeight] / 1000;
+                    let nextHeight = fillHeights[i + 1];
+                    let nextTime = timePerFill[fillHeights[i + 1]] / 1000;
+                    let diff = nextHeight - fillHeight;
+                    let diffTime = nextTime - time;
+                    let speed = diff / diffTime;
+
+                    perSecond = (perSecond + speed) / 2;
+                }
+
+                console.log("[volcano] fill per second: " + perSecond);
+
+                let secondsUtilFull = 0;
+                let tempFill = 0;
+                if (perSecond > 0 && Date.now() - latestFill < twoHoursInMillis) {
+                    for (let s = 0; s < 100000; s++) {
+                        tempFill += perSecond;
+                        secondsUtilFull++;
+                        if (tempFill > maxFill) {
+                            break;
+                        }
+                    }
+                }
+
+                console.log("[volcano] seconds until max height: " + secondsUtilFull);
 
                 if (bestConfirmations < 50 && (Date.now() - lastConfirmationWarning > 1000 * 60 * 60)) {
                     try {
@@ -144,6 +192,14 @@ module.exports = function (vars, pool) {
                     estimateSource = "eruption";
 
 
+                }
+
+                if (perSecond >0 && Date.now() - latestFill < twoHoursInMillis && secondsUtilFull > 0) {
+                    let estimate = now + (secondsUtilFull * 1000);
+                    averageEstimate += estimate * fillConfirmations;
+                    averageEstimateCounter += fillConfirmations;
+
+                    estimateSource = "fill";
                 }
 
                 // let gotBlaze = false;
@@ -265,12 +321,15 @@ module.exports = function (vars, pool) {
                     type: "volcano",
                     queryTime: now,
                     latest: {
-                        eruption: latestEruption
+                        eruption: latestEruption,
+                        fill: latestFill
                     },
                     latestEvent: latestEvent,
                     latestConfirmations: {
-                        eruption: eruptionConfirmations
+                        eruption: eruptionConfirmations,
+                        fill: fillConfirmations
                     },
+                    fillHeight: latestFillHeight,
                     estimate: averageEstimate,
                     estimateRelative: estimateString,
                     estimateSource: estimateSource,
