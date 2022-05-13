@@ -154,7 +154,7 @@ module.exports = function (vars, pool) {
 
                     console.info("Type: " + type + "  LastType: " + lastType);
 
-                    if (type === lastType && time - lastTime < 3.6e+6/* 1hr */) {
+                    if (type === lastType && type !== "fill" && time - lastTime < 3.6e+6/* 1hr */) {
                         res.status(429).json({
                             success: false,
                             msg: "Nope. Too soon."
@@ -164,7 +164,7 @@ module.exports = function (vars, pool) {
                         return;
                     }
 
-                    let throttle = type === "death" && lastType === "spawn" ? 10000/*10sec*/ : type === "spawn" && lastType === "music" ? 40000/*40sec*/ : type === "death" && lastType === "music" ? 50000/*50sec*/ : 120000/*2min*/;
+                    let throttle = type === "fill" ? 10000 : 120000/*2min*/;
                     if (time - lastTime < throttle) {
                         res.status(429).json({
                             success: false,
@@ -205,9 +205,9 @@ module.exports = function (vars, pool) {
                                         confirmationIncrease += 5;
                                     }
 
-                                    if(username==="inventivetalent") {
+                                    if (username === "inventivetalent") {
                                         console.log("username=inventivetalent");
-                                        confirmationIncrease+=20;
+                                        confirmationIncrease += 20;
                                     }
                                 } else if (!isOutdatedSBA) {
                                     console.log("!isOutdatedSBA")

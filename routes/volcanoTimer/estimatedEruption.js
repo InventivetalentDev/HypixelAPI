@@ -46,7 +46,7 @@ module.exports = function (vars, pool) {
     function loadData() {
         console.log("[volcano] Querying DB data...");
         pool.query(
-            "SELECT type,fill_height,time_rounded,confirmations,time_average,time_latest FROM skyblock_volcano_timer_events WHERE confirmations >= 10 AND time_rounded >= NOW() - INTERVAL 8 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
+            "SELECT type,fill_height,time_rounded,confirmations,time_average,time_latest FROM skyblock_volcano_timer_events WHERE confirmations >= 1 AND time_rounded >= NOW() - INTERVAL 8 HOUR ORDER BY time_rounded DESC, confirmations DESC LIMIT 20", function (err, results) {
                 if (err) {
                     console.warn(err);
                     return;
@@ -96,10 +96,14 @@ module.exports = function (vars, pool) {
                             latestEruption = averageTime;
                             eruptionConfirmations = confirmations;
                         }
-                        if (type === 'fill') {
-                            latestFill = averageTime;
+
+                    }
+
+                    if (type === 'fill') {
+                        latestFill = averageTime;
+                        fillConfirmations = confirmations;
+                        if (result.fill_height > 0) {
                             latestFillHeight = result.fill_height;
-                            fillConfirmations = confirmations;
                             fillsPerTime[averageTime] = result.fill_height;
                             timePerFill[result.fill_height] = averageTime;
                         }
@@ -121,6 +125,8 @@ module.exports = function (vars, pool) {
                 // calculate fill speed
                 let perSecond = 0;
 
+                console.log(timePerFill);
+
                 let fillHeights = Object.keys(timePerFill);
                 for (let i = 0; i < fillHeights.length - 1; i++) {
                     let fillHeight = fillHeights[i];
@@ -131,15 +137,17 @@ module.exports = function (vars, pool) {
                     let diffTime = nextTime - time;
                     let speed = diff / diffTime;
 
+                    console.log(speed);
                     perSecond = (perSecond + speed) / 2;
                 }
 
                 console.log("[volcano] fill per second: " + perSecond);
+                console.log("[volcano] fill per minute: " + (perSecond * 60));
 
                 let secondsUtilFull = 0;
-                let tempFill = 0;
+                let tempFill = minFill;
                 if (perSecond > 0 && Date.now() - latestFill < twoHoursInMillis) {
-                    for (let s = 0; s < 100000; s++) {
+                    for (let s = 0; s < 1000000; s++) {
                         tempFill += perSecond;
                         secondsUtilFull++;
                         if (tempFill > maxFill) {
@@ -199,6 +207,12 @@ module.exports = function (vars, pool) {
                     let estimate = now + (secondsUtilFull * 1000);
                     averageEstimate += estimate * fillConfirmations;
                     averageEstimateCounter += fillConfirmations;
+
+                    estimateSource = "fill_speed";
+                } else if (latestFill > 0) {
+                    let estimate = latestFill + fiveMinsInMillis;
+                    averageEstimate += estimate * eruptionConfirmations;
+                    averageEstimateCounter += eruptionConfirmations;
 
                     estimateSource = "fill";
                 }
