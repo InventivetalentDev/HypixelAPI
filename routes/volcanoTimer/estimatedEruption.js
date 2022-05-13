@@ -31,6 +31,7 @@ module.exports = function (vars, pool) {
     const oneMinInMillis = 60000;
     const thirtySecsInMillis = 30000;
 
+    const minFill = 117;
     const maxFill = 225;
 
     let lastConfirmationWarning = 0;
@@ -194,7 +195,7 @@ module.exports = function (vars, pool) {
 
                 }
 
-                if (perSecond >0 && Date.now() - latestFill < twoHoursInMillis && secondsUtilFull > 0) {
+                if (perSecond > 0 && Date.now() - latestFill < twoHoursInMillis && secondsUtilFull > 0) {
                     let estimate = now + (secondsUtilFull * 1000);
                     averageEstimate += estimate * fillConfirmations;
                     averageEstimateCounter += fillConfirmations;
@@ -329,7 +330,7 @@ module.exports = function (vars, pool) {
                         eruption: eruptionConfirmations,
                         fill: fillConfirmations
                     },
-                    fillHeight: latestFillHeight,
+                    fillHeight: latestFillHeight || minFill,
                     estimate: averageEstimate,
                     estimateRelative: estimateString,
                     estimateSource: estimateSource,
