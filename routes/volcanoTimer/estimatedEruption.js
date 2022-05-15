@@ -77,7 +77,7 @@ module.exports = function (vars, pool) {
                 let fillsPerTime = {};
                 let timePerFill = {};
                 let latestFill = 0;
-                let latestFillHeight = 0;
+                let latestFillHeight = minFill;
                 let fillConfirmations = 0;
 
                 let bestConfirmations = 0;
@@ -100,10 +100,14 @@ module.exports = function (vars, pool) {
                     }
 
                     if (type === 'fill') {
-                        latestFill = averageTime;
+                        if (averageTime > latestFill) {
+                            latestFill = averageTime;
+                        }
                         fillConfirmations = confirmations;
                         if (result.fill_height > 0) {
-                            latestFillHeight = result.fill_height;
+                            if (averageTime >= latestFill) {
+                                latestFillHeight = result.fill_height;
+                            }
                             fillsPerTime[averageTime] = result.fill_height;
                             timePerFill[result.fill_height] = averageTime;
                         }
@@ -125,38 +129,43 @@ module.exports = function (vars, pool) {
                 // calculate fill speed
                 let perSecond = 0;
 
-                console.log(timePerFill);
-
-                let fillHeights = Object.keys(timePerFill);
-                for (let i = 0; i < fillHeights.length - 1; i++) {
-                    let fillHeight = fillHeights[i];
-                    let time = timePerFill[fillHeight] / 1000;
-                    let nextHeight = fillHeights[i + 1];
-                    let nextTime = timePerFill[fillHeights[i + 1]] / 1000;
-                    let diff = nextHeight - fillHeight;
-                    let diffTime = nextTime - time;
-                    let speed = diff / diffTime;
-
-                    console.log(speed);
-                    perSecond = (perSecond + speed) / 2;
-                }
-
-                console.log("[volcano] fill per second: " + perSecond);
-                console.log("[volcano] fill per minute: " + (perSecond * 60));
-
                 let secondsUtilFull = 0;
-                let tempFill = minFill;
-                if (perSecond > 0 && Date.now() - latestFill < twoHoursInMillis) {
-                    for (let s = 0; s < 1000000; s++) {
-                        tempFill += perSecond;
-                        secondsUtilFull++;
-                        if (tempFill > maxFill) {
-                            break;
+
+                if (latestEruption < latestFill) {
+                    let fillHeights = Object.keys(timePerFill);
+                    for (let i = 0; i < fillHeights.length - 1; i++) {
+                        let fillHeight = fillHeights[i];
+                        let time = timePerFill[fillHeight] / 1000;
+                        let nextHeight = fillHeights[i + 1];
+                        let nextTime = timePerFill[fillHeights[i + 1]] / 1000;
+                        let diff = nextHeight - fillHeight;
+                        let diffTime = nextTime - time;
+                        let speed = diff / diffTime;
+
+                        console.log(speed);
+                        perSecond = (perSecond + speed) / 2;
+                    }
+
+                    console.log("[volcano] fill per second: " + perSecond);
+                    console.log("[volcano] fill per minute: " + (perSecond * 60));
+
+                    let tempFill = latestFillHeight || minFill;
+                    console.log("start: " + tempFill)
+                    if (perSecond > 0 && Date.now() - latestFill < twoHoursInMillis) {
+                        for (let s = 0; s < 1000000; s++) {
+                            tempFill += perSecond;
+                            // console.log(tempFill)
+                            secondsUtilFull++;
+                            if (tempFill > maxFill) {
+                                break;
+                            }
                         }
                     }
-                }
 
-                console.log("[volcano] seconds until max height: " + secondsUtilFull);
+                    secondsUtilFull -= latestFill / 1000;
+
+                    console.log("[volcano] seconds until max height: " + secondsUtilFull);
+                }
 
                 if (bestConfirmations < 50 && (Date.now() - lastConfirmationWarning > 1000 * 60 * 60)) {
                     try {
@@ -200,21 +209,30 @@ module.exports = function (vars, pool) {
 
                     estimateSource = "eruption";
 
+                    if (eruptionsSinceLast <= 1) {
+                        confidence *= eruptionConfirmations;
+                    } else if (eruptionsSinceLast <= 2) {
+                        confidence *= 2;
+                    }
 
                 }
 
-                if (perSecond > 0 && Date.now() - latestFill < twoHoursInMillis && secondsUtilFull > 0) {
-                    let estimate = now + (secondsUtilFull * 1000);
-                    averageEstimate += estimate * fillConfirmations;
-                    averageEstimateCounter += fillConfirmations;
+                if (latestEruption < latestFill) {
+                    if (perSecond > 0 && Date.now() - latestFill < twoHoursInMillis && secondsUtilFull > 0) {
+                        let estimate = now + (secondsUtilFull * 1000);
+                        averageEstimate += estimate * fillConfirmations;
+                        averageEstimateCounter += fillConfirmations;
 
-                    estimateSource = "fill_speed";
-                } else if (latestFill > 0) {
-                    let estimate = latestFill + fiveMinsInMillis;
-                    averageEstimate += estimate * eruptionConfirmations;
-                    averageEstimateCounter += eruptionConfirmations;
+                        confidence *= (1 - (Object.keys(fillsPerTime).length / fillConfirmations));
 
-                    estimateSource = "fill";
+                        estimateSource = "fill_speed";
+                    } else if (latestFill > 0 && Date.now() - latestFill < twoHoursInMillis && Date.now() - latestFill > fiveMinsInMillis) {
+                        let estimate = latestFill + fiveMinsInMillis;
+                        averageEstimate += estimate * eruptionConfirmations;
+                        averageEstimateCounter += eruptionConfirmations;
+
+                        estimateSource = "fill";
+                    }
                 }
 
                 // let gotBlaze = false;
