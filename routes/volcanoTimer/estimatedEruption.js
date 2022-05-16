@@ -162,7 +162,7 @@ module.exports = function (vars, pool) {
                         }
                     }
 
-                    secondsUtilFull -= latestFill / 1000;
+                    // secondsUtilFull -= latestFill / 1000;
 
                     console.log("[volcano] seconds until max height: " + secondsUtilFull);
                 }
@@ -200,10 +200,10 @@ module.exports = function (vars, pool) {
                 if (latestEruption > 0) {
 
 
-                    let eruptionsSinceLast = Math.floor((now - latestEruption) / twoHoursInMillis);
+                    let eruptionsSinceLast = Math.floor((now - latestEruption) / (twoHoursInMillis+fiveMinsInMillis));
                     eruptionsSinceLast++;
 
-                    let estimate = latestEruption + (eruptionsSinceLast * twoHoursInMillis);
+                    let estimate = latestEruption + (eruptionsSinceLast * (twoHoursInMillis+fiveMinsInMillis));
                     averageEstimate += estimate * eruptionConfirmations;
                     averageEstimateCounter += eruptionConfirmations;
 
@@ -219,7 +219,7 @@ module.exports = function (vars, pool) {
 
                 if (latestEruption < latestFill) {
                     if (perSecond > 0 && Date.now() - latestFill < twoHoursInMillis && secondsUtilFull > 0) {
-                        let estimate = now + (secondsUtilFull * 1000);
+                        let estimate = latestFill + (secondsUtilFull * 1000);
                         averageEstimate += estimate * fillConfirmations;
                         averageEstimateCounter += fillConfirmations;
 
@@ -371,7 +371,7 @@ module.exports = function (vars, pool) {
 
 
                 // let minutesUntilNextSpawn = moment.duration(averageEstimate - now).asMinutes();
-                // console.log("[MagmaBoss] Minutes until event: " + minutesUntilNextSpawn + " (" + estimateSource + ", " + confidence + ")");
+                console.log("[volcano] Minutes until event: " + estimateString + " (" + estimateSource + ", " + confidence + ")");
                 // if (!latestOneSignalNotification && prioritizeWaves) {
                 //     if (minutesUntilNextSpawn <= 10 && minutesUntilNextSpawn >= 8) {
                 //         console.log("[MagmaBoss] Sending OneSignal push notification...");

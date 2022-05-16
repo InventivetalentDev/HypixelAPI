@@ -36,6 +36,10 @@ module.exports = function (vars, pool) {
 
         let fillHeight = parseInt(req.body.height || '0');
 
+        if (type === "eruption") {
+            fillHeight = 225;
+        }
+
         let username = req.body.username || "";
         let server = req.body.serverId || "";
 
@@ -157,7 +161,7 @@ module.exports = function (vars, pool) {
                     if (type === lastType && type !== "fill" && time - lastTime < 3.6e+6/* 1hr */) {
                         res.status(429).json({
                             success: false,
-                            msg: "Nope. Too soon."
+                            msg: "Nope. Too soon. a"
                         });
                         console.warn("Too Soon A");
                         // connection.release();
@@ -168,7 +172,7 @@ module.exports = function (vars, pool) {
                     if (time - lastTime < throttle) {
                         res.status(429).json({
                             success: false,
-                            msg: "Nope. Too soon."
+                            msg: "Nope. Too soon. b"
                         });
                         console.warn("Too Soon B");
                         // connection.release();
